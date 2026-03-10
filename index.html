@@ -929,8 +929,8 @@
         .m-section-top { padding: 30px; background: #ffffff; }
         .m-section-bottom { padding: 30px; background: #fafafa; border-top: 1px dashed #e4e4e7; }
         .m-title { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: #71717a; margin-bottom: 12px; }
-        .m-val { font-size: 24px; font-weight: 800; color: #18181b; font-family: 'Open Sans', sans-serif;}
-        .m-pp { font-size: 14px; color: #52525b; margin-top: 6px; font-weight: 600; font-family: 'Open Sans', sans-serif; }
+        .m-val { font-size: 24px; font-weight: 700; color: #18181b; font-family: 'Open Sans', sans-serif;}
+        .m-pp { font-size: 14px; color: #d87a4d; margin-top: 6px; font-weight: 600; font-family: 'Open Sans', sans-serif; }
     </style>
 </head>
 <body>
@@ -1019,14 +1019,14 @@
             <div class="matrix-card">
                 <div class="m-section-top">
                     <div class="m-title">Desert Tracks (25%)</div>
-                    <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
+                    <div class="m-val">${format(dtTotal)} NAD Namibia Client Invoice</div>
                     <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
                     ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
                 </div>
                 ${qBotsTotal > 0 ? `
                 <div class="m-section-bottom">
                     <div class="m-title" style="color: #d87a4d;">Botswana</div>
-                    <div class="m-val" style="color: #d87a4d;">$${format(dtBotsTotal)} USD Client Invoice</div>
+                    <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
                     <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
@@ -1036,14 +1036,14 @@
             <div class="matrix-card">
                 <div class="m-section-top">
                     <div class="m-title">Travel Local (18%)</div>
-                    <div class="m-val">${format(tlTotal)} NAD Client Invoice</div>
+                    <div class="m-val">${format(tlTotal)} NAD Namibia Client Invoice</div>
                     <div class="m-pp">Namibian Double Sharing PP: ${format(tlNamibianDoublePP)}</div>
                     ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(tlNamibianSinglePP)}</div>` : ''}
                 </div>
                 ${qBotsTotal > 0 ? `
                 <div class="m-section-bottom">
                     <div class="m-title" style="color: #d87a4d;">Botswana</div>
-                    <div class="m-val" style="color: #d87a4d;">$${format(tlBotsTotal)} USD Client Invoice</div>
+                    <div class="m-val">$${format(tlBotsTotal)} USD Botswana Client Invoice</div>
                     <div class="m-pp">Botswana Double Sharing PP: $${format(tlBotsDoublePP)}</div>
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(tlBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
@@ -1053,7 +1053,7 @@
             <div class="matrix-card">
                 <div class="m-section-top">
                     <div class="m-title">Consultant (25% Total)</div>
-                    <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
+                    <div class="m-val">${format(dtTotal)} NAD Namibia Client Invoice</div>
                     <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
                     ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
                     <div style="font-size: 11px; color: #d87a4d; margin-top: 12px; font-weight: bold;">(Includes 20% DT & 5% Agent Override)</div>
@@ -1061,7 +1061,7 @@
                 ${qBotsTotal > 0 ? `
                 <div class="m-section-bottom">
                     <div class="m-title" style="color: #d87a4d;">Botswana</div>
-                    <div class="m-val" style="color: #d87a4d;">$${format(dtBotsTotal)} USD Client Invoice</div>
+                    <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
                     <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
