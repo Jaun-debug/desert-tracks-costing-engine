@@ -120,15 +120,27 @@
                             placeholder="e.g. Jane Doe">
                     </div>
                     <div
-                        class="flex items-center gap-3 bg-white p-3 rounded-[14px] border border-yellow-200 shadow-sm border-l-4 border-l-yellow-400">
+                        class="flex flex-col gap-2 bg-white p-3 rounded-[14px] border border-yellow-200 shadow-sm border-l-4 border-l-yellow-400">
                         <label
-                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-20 leading-tight">Botswana<br>Safari
-                            <span class="text-[9px] text-gray-400 font-medium">(USD)</span></label>
-                        <div class="relative w-full">
-                            <span class="absolute left-2 top-0 text-yellow-700 font-bold">$</span>
-                            <input type="number" v-model.number="botswanaUsd"
-                                class="w-full pl-6 py-0 font-bold text-lg bg-yellow-50/50 rounded text-yellow-800 border-0 outline-none focus:ring-0"
-                                placeholder="0">
+                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-full leading-tight">Botswana
+                            Safari <span class="text-[9px] text-gray-400 font-medium">(USD)</span></label>
+                        <div class="flex gap-2">
+                            <div class="relative w-full">
+                                <span
+                                    class="absolute left-2 top-0.5 text-[9px] text-yellow-700/70 font-bold uppercase">Sharing
+                                    PP</span>
+                                <input type="number" v-model.number="botswanaDoublePP"
+                                    class="w-full pl-2 pt-4 pb-1 font-bold text-sm bg-yellow-50/50 rounded text-yellow-800 border border-yellow-100 outline-none focus:ring-1 focus:ring-yellow-400 text-right uppercase"
+                                    placeholder="0">
+                            </div>
+                            <div class="relative w-full">
+                                <span
+                                    class="absolute left-2 top-0.5 text-[9px] text-yellow-700/70 font-bold uppercase">Single
+                                    PP</span>
+                                <input type="number" v-model.number="botswanaSinglePP"
+                                    class="w-full pl-2 pt-4 pb-1 font-bold text-sm bg-yellow-50/50 rounded text-yellow-800 border border-yellow-100 outline-none focus:ring-1 focus:ring-yellow-400 text-right uppercase"
+                                    placeholder="0">
+                            </div>
                         </div>
                     </div>
                     <div
@@ -482,9 +494,9 @@
                                 class="text-gray-500 font-medium">Other Extras</span><span
                                 class="font-bold text-gray-800">{{ format(extrasTotal) }}</span>
                         </div>
-                        <div class="flex justify-between pb-1" v-if="botswanaUsd > 0"><span
+                        <div class="flex justify-between pb-1" v-if="botswanaUsdSummary > 0"><span
                                 class="text-yellow-600 font-bold">Botswana STO Base (USD)</span><span
-                                class="font-bold text-yellow-700">&#36;{{ format(botswanaUsd) }}</span></div>
+                                class="font-bold text-yellow-700">&#36;{{ format(botswanaUsdSummary) }}</span></div>
                     </div>
 
                     <div class="bg-gradient-to-b from-[#fdfbf7] to-white p-6 border-t font-semibold">
@@ -519,17 +531,25 @@
                                         }}</span>
                                 </div>
 
-                                <div v-if="botswanaUsd > 0"
+                                <div v-if="botswanaUsdSummary > 0"
                                     class="flex justify-between text-sm border-t border-orange-200/50 pt-2">
                                     <span class="text-orange-700 font-medium">Botswana USD Portion (inc markup)</span>
                                     <span
                                         class="font-bold text-yellow-700 bg-white px-2 py-0.5 rounded shadow-sm">&#36;{{
-                                        format(botswanaUsd * 1.25) }}</span>
+                                        format(botswanaUsdSummary * 1.25) }}</span>
                                 </div>
-                                <div v-if="botswanaUsd > 0" class="flex justify-between text-xs mt-1 opacity-70">
-                                    <span class="text-orange-700 font-medium tracking-wide">Botswana Per Pax</span>
-                                    <span class="font-bold px-1 rounded">&#36;{{
-                                        format((botswanaUsd * 1.25)/Math.max(1, numPax)) }}</span>
+                                <div v-if="botswanaUsdSummary > 0" class="flex justify-between text-xs mt-1 opacity-80">
+                                    <span class="text-orange-800 font-medium tracking-wide">Botswana Double Sharing
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">&#36;{{ format(botswanaDoublePP * 1.25)
+                                        }}</span>
+                                </div>
+                                <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
+                                    class="flex justify-between text-xs mt-1 opacity-80 border-b border-orange-200/40 pb-2">
+                                    <span class="text-orange-800 font-medium tracking-wide">Botswana Single Traveler
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">&#36;{{ format(botswanaSinglePP * 1.25)
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -573,16 +593,23 @@
                                         0.82) }}</span>
                                 </div>
 
-                                <div v-if="botswanaUsd > 0"
+                                <div v-if="botswanaUsdSummary > 0"
                                     class="flex justify-between text-sm border-t border-gray-700/50 pt-2">
                                     <span class="text-gray-300">Botswana USD Portion (inc markup)</span>
                                     <span class="font-bold text-yellow-500 bg-black px-2 py-0.5 rounded">&#36;{{
-                                        format((botswanaUsd * 1.25) / 0.82) }}</span>
+                                        format((botswanaUsdSummary * 1.25) / 0.82) }}</span>
                                 </div>
-                                <div v-if="botswanaUsd > 0" class="flex justify-between text-xs mt-1 text-gray-500">
-                                    <span class="font-medium tracking-wide">Botswana Per Pax</span>
-                                    <span class="font-bold px-1 rounded">&#36;{{
-                                        format(((botswanaUsd * 1.25) / 0.82)/Math.max(1, numPax)) }}</span>
+                                <div v-if="botswanaUsdSummary > 0"
+                                    class="flex justify-between text-xs mt-1 text-gray-400">
+                                    <span class="font-medium tracking-wide">Botswana Double Sharing PP</span>
+                                    <span class="font-bold px-1 rounded">&#36;{{ format((botswanaDoublePP * 1.25) /
+                                        0.82) }}</span>
+                                </div>
+                                <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
+                                    class="flex justify-between text-xs mt-1 mb-3 text-gray-400 border-b border-gray-700/50 pb-2">
+                                    <span class="font-medium tracking-wide">Botswana Single Traveler PP</span>
+                                    <span class="font-bold px-1 rounded">&#36;{{ format((botswanaSinglePP * 1.25) /
+                                        0.82) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -626,17 +653,25 @@
                                         }}</span>
                                 </div>
 
-                                <div v-if="botswanaUsd > 0"
+                                <div v-if="botswanaUsdSummary > 0"
                                     class="flex justify-between text-sm border-t border-emerald-200/50 pt-2">
                                     <span class="text-emerald-700 font-medium">Botswana USD Portion (inc markup)</span>
                                     <span
                                         class="font-bold text-emerald-800 bg-white px-2 py-0.5 rounded shadow-sm">&#36;{{
-                                        format(botswanaUsd * 1.25) }}</span>
+                                        format(botswanaUsdSummary * 1.25) }}</span>
                                 </div>
-                                <div v-if="botswanaUsd > 0" class="flex justify-between text-xs mt-1 opacity-70">
-                                    <span class="text-emerald-700 font-medium tracking-wide">Botswana Per Pax</span>
-                                    <span class="font-bold px-1 rounded">&#36;{{
-                                        format((botswanaUsd * 1.25)/Math.max(1, numPax)) }}</span>
+                                <div v-if="botswanaUsdSummary > 0" class="flex justify-between text-xs mt-1 opacity-80">
+                                    <span class="text-emerald-800 font-medium tracking-wide">Botswana Double Sharing
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">&#36;{{ format(botswanaDoublePP * 1.25)
+                                        }}</span>
+                                </div>
+                                <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
+                                    class="flex justify-between text-xs mt-1 mb-3 opacity-80 border-b border-emerald-200/50 pb-2">
+                                    <span class="text-emerald-800 font-medium tracking-wide">Botswana Single Traveler
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">&#36;{{ format(botswanaSinglePP * 1.25)
+                                        }}</span>
                                 </div>
                             </div>
                         </div>
@@ -684,7 +719,8 @@
                     numPax: 2,
                     doublePax: 2,
                     singlePax: 0,
-                    botswanaUsd: 0,
+                    botswanaDoublePP: 0,
+                    botswanaSinglePP: 0,
                     fuelDistance: 2000,
                     fuelType: 'low',
                     activities: [],
@@ -706,6 +742,9 @@
                         this.itinerary.length > 0 &&
                         this.itinerary[0].lodge.trim() !== '' &&
                         this.isPaxValid;
+                },
+                botswanaUsdSummary() {
+                    return ((this.botswanaDoublePP || 0) * Math.max(0, this.doublePax)) + ((this.botswanaSinglePP || 0) * Math.max(0, this.singlePax));
                 },
                 groupedQuotes() {
                     return this.savedQuotes.reduce((acc, quote, index) => {
@@ -795,7 +834,8 @@
                         numPax: this.numPax,
                         doublePax: this.doublePax,
                         singlePax: this.singlePax,
-                        botswanaUsd: this.botswanaUsd,
+                        botswanaDoublePP: this.botswanaDoublePP,
+                        botswanaSinglePP: this.botswanaSinglePP,
                         fuelDistance: this.fuelDistance,
                         fuelType: this.fuelType,
                         activities: JSON.parse(JSON.stringify(this.activities)),
@@ -815,7 +855,8 @@
                     this.numPax = quote.numPax;
                     this.doublePax = quote.doublePax !== undefined ? quote.doublePax : quote.numPax;
                     this.singlePax = quote.singlePax !== undefined ? quote.singlePax : 0;
-                    this.botswanaUsd = quote.botswanaUsd;
+                    this.botswanaDoublePP = quote.botswanaDoublePP !== undefined ? quote.botswanaDoublePP : (quote.botswanaUsd || 0);
+                    this.botswanaSinglePP = quote.botswanaSinglePP || 0;
                     this.fuelDistance = quote.fuelDistance;
                     this.fuelType = quote.fuelType;
                     this.activities = quote.activities;
@@ -838,8 +879,17 @@
 
                     const dtTotal = stoTotal * 1.25;
                     const tlTotal = dtTotal / 0.82;
-                    const dtBots = (q.botswanaUsd || 0) * 1.25;
-                    const tlBots = dtBots / 0.82;
+
+                    const qBotsDoublePP = q.botswanaDoublePP !== undefined ? q.botswanaDoublePP : (q.botswanaUsd || 0);
+                    const qBotsSinglePP = q.botswanaSinglePP || 0;
+                    const qBotsTotal = (qBotsDoublePP * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)) + (qBotsSinglePP * Math.max(0, q.singlePax || 0));
+
+                    const dtBotsTotal = qBotsTotal * 1.25;
+                    const tlBotsTotal = dtBotsTotal / 0.82;
+                    const dtBotsDoublePP = qBotsDoublePP * 1.25;
+                    const dtBotsSinglePP = qBotsSinglePP * 1.25;
+                    const tlBotsDoublePP = dtBotsDoublePP / 0.82;
+                    const tlBotsSinglePP = dtBotsSinglePP / 0.82;
 
                     let html = `<!DOCTYPE html>
 <html lang="en">
@@ -905,10 +955,11 @@
                 <div class="m-title">Desert Tracks (25%)</div>
                 <div class="m-val">${format(dtTotal)} NAD</div>
                 <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Namibian Per Pax: ${format(dtTotal / Math.max(1, q.numPax))}</div>
-                ${q.botswanaUsd > 0 ? `
+                ${qBotsTotal > 0 ? `
                 <div style="margin-top: 15px; border-top: 1px dashed #e4e4e7; padding-top: 15px;">
-                    <div class="m-sub">+$${format(dtBots)} USD Botswana</div>
-                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Per Pax: $${format(dtBots / Math.max(1, q.numPax))}</div>
+                    <div class="m-sub">+$${format(dtBotsTotal)} USD Botswana</div>
+                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}
+                    ${(qBotsSinglePP > 0) ? `<br>Botswana Single PP: $${format(dtBotsSinglePP)}` : ''}</div>
                 </div>` : ''}
             </div>` : ''}
             
@@ -917,10 +968,11 @@
                 <div class="m-title">Travel Local (18%)</div>
                 <div class="m-val">${format(tlTotal)} NAD</div>
                 <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Namibian Per Pax: ${format(tlTotal / Math.max(1, q.numPax))}</div>
-                ${q.botswanaUsd > 0 ? `
+                ${qBotsTotal > 0 ? `
                 <div style="margin-top: 15px; border-top: 1px dashed #e4e4e7; padding-top: 15px;">
-                    <div class="m-sub">+$${format(tlBots)} USD Botswana</div>
-                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Per Pax: $${format(tlBots / Math.max(1, q.numPax))}</div>
+                    <div class="m-sub">+$${format(tlBotsTotal)} USD Botswana</div>
+                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Double Sharing PP: $${format(tlBotsDoublePP)}
+                    ${(qBotsSinglePP > 0) ? `<br>Botswana Single PP: $${format(tlBotsSinglePP)}` : ''}</div>
                 </div>` : ''}
             </div>` : ''}
             
@@ -930,10 +982,11 @@
                 <div class="m-val">${format(dtTotal)} NAD</div>
                 <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Namibian Per Pax: ${format(dtTotal / Math.max(1, q.numPax))}</div>
                 <div style="font-size: 11px; color: #d87a4d; margin-top: 8px; font-weight: bold;">(Includes 20% DT & 5% Agent Override)</div>
-                ${q.botswanaUsd > 0 ? `
+                ${qBotsTotal > 0 ? `
                 <div style="margin-top: 15px; border-top: 1px dashed #e4e4e7; padding-top: 15px;">
-                    <div class="m-sub">+$${format(dtBots)} USD Botswana</div>
-                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Per Pax: $${format(dtBots / Math.max(1, q.numPax))}</div>
+                    <div class="m-sub">+$${format(dtBotsTotal)} USD Botswana</div>
+                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}
+                    ${(qBotsSinglePP > 0) ? `<br>Botswana Single PP: $${format(dtBotsSinglePP)}` : ''}</div>
                 </div>` : ''}
             </div>` : ''}
         </div>
