@@ -204,7 +204,8 @@
                             <!-- Quote Cards -->
                             <template v-else>
                                 <div v-for="quote in quotes" :key="quote.originalIndex"
-                                    class="bg-gray-50 p-3 rounded-lg border border-gray-100 flex flex-col gap-2 hover:border-dt-orange/30 transition-colors">
+                                    class="bg-gray-50 p-3 rounded-lg border border-gray-100 flex flex-col gap-2 hover:border-dt-orange/30 hover:shadow-md cursor-pointer transition-all hover:-translate-y-0.5"
+                                    @click.stop="loadQuote(quote.originalIndex)">
                                     <div class="flex justify-between items-start">
                                         <div class="font-bold text-gray-800 text-sm truncate pr-2">{{ quote.clientName
                                             }}
@@ -213,20 +214,17 @@
                                             class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
                                             new Date(quote.timestamp).toLocaleDateString() }}</span>
                                     </div>
-                                    <div class="flex gap-1 mt-1 mb-1">
-                                        <button @click.stop="loadQuote(quote.originalIndex)"
-                                            class="w-12 text-[9px] font-bold text-blue-700 bg-blue-100/50 py-1.5 rounded hover:bg-blue-100 transition border border-blue-200/50">LOAD</button>
-                                        <div
-                                            class="flex-1 flex gap-1 rounded bg-gray-50/50 p-0.5 border border-gray-100">
+                                    <div class="flex gap-2 mt-1 mb-1 items-stretch">
+                                        <div class="flex-1 flex gap-2">
                                             <button @click.stop="exportDocument(quote.originalIndex, 'costing')"
-                                                class="flex-1 text-[8px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm">COSTING</button>
+                                                class="flex-1 text-[9px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm py-1.5">COSTING</button>
                                             <button @click.stop="exportDocument(quote.originalIndex, 'invoice')"
-                                                class="flex-1 text-[8px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm">INVOICE</button>
+                                                class="flex-1 text-[9px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm py-1.5">INVOICE</button>
                                             <button @click.stop="exportDocument(quote.originalIndex, 'itinerary')"
-                                                class="flex-1 text-[8px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm">ITINERARY</button>
+                                                class="flex-1 text-[9px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm py-1.5">ITINERARY</button>
                                         </div>
                                         <button @click.stop="deleteQuote(quote.originalIndex)"
-                                            class="text-[9px] font-bold text-red-600 bg-red-100/50 px-2.5 py-1.5 rounded hover:bg-red-100 transition border border-red-200/50">✕</button>
+                                            class="text-[10px] font-bold text-red-600 bg-red-100/50 px-3 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200/50 shrink-0">✕</button>
                                     </div>
                                 </div>
                             </template>
@@ -937,10 +935,47 @@
 </head>
 <body>
     <div class="container">
+        <!-- Invoice Header Overrides -->
+        ${type === 'invoice' ? `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 2px solid #f4f4f5; padding-bottom: 30px;">
+            <div>
+                <h1 class="logo-text">Desert Tracks</h1>
+                <div class="sub-logo" style="margin-bottom: 20px;">BOOKINGS & SAFARIS</div>
+                <div style="font-size: 11px; line-height: 1.6; color: #3f3f46;">
+                    P.O. Box 8241<br>
+                    Swakopmund<br>
+                    Namibia<br>
+                    +264 (0)81 867 0705/6<br><br>
+                    NTB Reg No. TSO01063<br>
+                    Business Reg Nr: 0133975090018<br>
+                    VAT Nr 6033700-01-5<br>
+                    bookings@desert-tracks.com<br><br>
+                    <a href="https://www.desert-tracks.com" style="color: #0284c7; text-decoration: none;">www.desert-tracks.com</a>
+                </div>
+            </div>
+            <div style="width: 320px;">
+                <h2 style="font-family: 'Open Sans', sans-serif; font-size: 20px; font-weight: 700; margin-top: 0; text-align: right; color: #18181b;">Pro Forma INVOICE</h2>
+                <div style="font-size: 11px; margin-top: 20px; display: grid; grid-template-columns: 120px 1fr; gap: 8px;">
+                    <div style="color: #71717a;">Invoice No.</div><div style="text-align: right; font-weight: 700;">_________________</div>
+                    <div style="color: #71717a;">Invoice Date:</div><div style="text-align: right; font-weight: 700;">${new Date(Number(q.timestamp) || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                    <div style="color: #71717a;">Client Ref:</div><div style="text-align: right; font-weight: 700;">DT-${(q.timestamp || Date.now()).toString().slice(-6)}</div>
+                </div>
+                <div style="font-size: 11px; margin-top: 20px; line-height: 1.6; display: flex; flex-direction: column;">
+                    <strong style="font-size: 12px; margin-bottom: 5px;">CLIENT DETAILS</strong>
+                    <div style="display: grid; grid-template-columns: 70px 1fr; gap: 8px;">
+                        <span style="color: #71717a;">Name:</span><strong style="text-align: right;">${q.clientName}</strong>
+                        <span style="color: #71717a;">Address:</span><span style="text-align: right;">_____________________</span>
+                        <span style="color: #71717a;"></span><span style="text-align: right;">_____________________</span>
+                        <span style="color: #71717a;">Contact:</span><span style="text-align: right;">_____________________</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        ` : `
         <div class="header">
             <div>
                 <h1 class="logo-text">Desert Tracks</h1>
-                <div class="sub-logo">${type === 'costing' ? 'Premium Costing Estimate' : type === 'invoice' ? 'Client Invoice' : 'Prepared Itinerary'}</div>
+                <div class="sub-logo">${type === 'costing' ? 'Premium Costing Estimate' : 'Prepared Itinerary'}</div>
             </div>
             <div class="meta-text" style="text-align: right;">
                 <strong>Date:</strong> ${new Date(q.timestamp).toLocaleDateString()}<br>
@@ -952,6 +987,7 @@
             <div style="font-size: 12px; color: #d87a4d; text-transform: uppercase; font-weight: 700; letter-spacing: 1px;">Prepared For</div>
             <div style="font-size: 20px; font-weight: 600; color: #27272a; margin-top: 4px;">${q.clientName} (${q.numPax} PAX)</div>
         </div>
+        `}
         <h3>Itinerary Summary</h3>
         <table>
             <tr><th style="width: 30px;">Day</th><th>Region</th><th>Lodge</th>${type === 'itinerary' ? '' : '<th style="text-align: right;">Sharing PP</th><th style="text-align: right;">Single PP</th>'}</tr>
@@ -1030,6 +1066,25 @@
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
             </div>` : ''}
+        </div>
+        ` : ''}
+
+        <!-- Invoice Footers -->
+        ${type === 'invoice' ? `
+        <div style="margin-top: 40px; padding: 20px; background: #fdfbf7; border: 1px solid #e4e4e7; border-radius: 8px; text-align: center;">
+            <div style="font-weight: 600; font-size: 14px;">Thank you - Your business is appreciated!</div>
+        </div>
+        
+        <div style="margin-top: 40px;">
+            <h4 style="margin: 0 0 15px 0; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #18181b;">Namibia - Banking Details</h4>
+            <div style="font-size: 12px; line-height: 1.8; color: #18181b; font-weight: 600;">
+                STANDARD BANK NAMIBIA LIMITED<br>
+                POST MALL STREET<br>
+                MUTUAL PLATZ - 10005 - WINDHOEK<br>
+                Account Number: 6000 708 1129<br>
+                Universal Code: 087373<br>
+                BIC/Swift/Branch Code: SBNMNANXXXX
+            </div>
         </div>
         ` : ''}
         <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #a1a1aa;">Generated by Desert Tracks Costing Engine</div>
