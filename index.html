@@ -154,31 +154,60 @@
                         + Save Current Quote
                     </button>
                 </div>
-                <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style="scrollbar-width: none;">
-                    <div v-if="savedQuotes.length === 0"
+                <div class="flex gap-4 overflow-x-auto pb-4 pt-1 scrollbar-hide w-full" style="scrollbar-width: none;">
+                    <div v-if="Object.keys(groupedQuotes).length === 0"
                         class="text-sm font-medium text-gray-400 italic py-3 text-center w-full">
                         You have not saved any quotes yet. Fill out the configuration above and click Save.
                     </div>
-                    <div v-for="(quote, index) in savedQuotes" :key="index"
-                        class="bg-white min-w-[280px] max-w-[280px] p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-3 shrink-0 hover:border-dt-orange/30 transition-colors">
-                        <div class="flex justify-between items-start">
-                            <div class="min-w-0 pr-2">
-                                <div class="font-extrabold text-gray-800 text-sm truncate">{{ quote.clientName }}</div>
-                                <div
-                                    class="text-[11px] text-dt-orange font-bold mt-1 uppercase tracking-wider truncate">
-                                    {{ quote.agentName }}</div>
+                    <div v-for="(quotes, agent) in groupedQuotes" :key="agent"
+                        class="flex flex-col gap-3 min-w-[280px] bg-white p-4 rounded-xl border border-gray-200 shadow-sm shrink-0 transition-all cursor-pointer hover:border-dt-orange/30"
+                        @click="expandedAgent = expandedAgent === agent ? null : agent">
+
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-2">
+                            <span class="text-xs font-bold bg-dt-orange text-white px-2 py-1 rounded shadow-sm">{{ agent
+                                || 'Unnamed Agent' }}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-gray-400 font-bold uppercase">{{ quotes.length }}
+                                    Quote(s)</span>
+                                <span class="text-gray-400 transform transition-transform"
+                                    :class="expandedAgent === agent ? 'rotate-180' : ''">▼</span>
                             </div>
-                            <span class="text-[10px] text-gray-500 font-medium px-2 py-1 bg-gray-50 rounded shrink-0">{{
-                                new Date(quote.timestamp).toLocaleDateString() }}</span>
                         </div>
-                        <div class="flex gap-2 mt-auto pt-2 border-t border-gray-100">
-                            <button @click="loadQuote(index)"
-                                class="flex-1 text-[10px] font-bold text-blue-700 bg-blue-50 py-1.5 rounded hover:bg-blue-100 transition shadow-sm border border-blue-100/50">LOAD</button>
-                            <button @click="downloadQuote(index)"
-                                class="flex-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 py-1.5 rounded hover:bg-emerald-100 transition shadow-sm border border-emerald-100/50">DOWNLOAD
-                                HTML</button>
-                            <button @click="deleteQuote(index)"
-                                class="text-[10px] font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded hover:bg-red-100 transition shadow-sm border border-red-100/50">✕</button>
+
+                        <div v-if="expandedAgent === agent"
+                            class="flex flex-col gap-3 max-h-[300px] overflow-y-auto pr-1" @click.stop>
+                            <!-- Admin Password Gate -->
+                            <div v-if="agent.toLowerCase() === 'admin' && !unlockedAgents.includes(agent)"
+                                class="flex flex-col gap-2 py-4">
+                                <div class="text-[11px] text-gray-500 font-medium text-center">This agent requires a
+                                    password</div>
+                                <div class="flex gap-2">
+                                    <input type="password" v-model="adminPasswords[agent]" placeholder="Password..."
+                                        class="flex-1 text-xs p-2 rounded-lg border-gray-300 bg-gray-50" @click.stop>
+                                    <button @click.stop="unlockAgent(agent)"
+                                        class="text-[11px] bg-gray-800 text-white px-3 py-2 rounded-lg font-bold hover:bg-black transition-colors">Unlock</button>
+                                </div>
+                            </div>
+
+                            <!-- Quote Cards -->
+                            <div v-else v-for="quote in quotes" :key="quote.originalIndex"
+                                class="bg-gray-50 p-3 rounded-lg border border-gray-100 flex flex-col gap-2 hover:border-dt-orange/30 transition-colors">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-bold text-gray-800 text-sm truncate pr-2">{{ quote.clientName }}
+                                    </div>
+                                    <span
+                                        class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
+                                        new Date(quote.timestamp).toLocaleDateString() }}</span>
+                                </div>
+                                <div class="flex gap-1.5 mt-1">
+                                    <button @click.stop="loadQuote(quote.originalIndex)"
+                                        class="flex-1 text-[9px] font-bold text-blue-700 bg-blue-100/50 py-1.5 rounded hover:bg-blue-100 transition border border-blue-200/50">LOAD</button>
+                                    <button @click.stop="downloadQuote(quote.originalIndex)"
+                                        class="flex-1 text-[9px] font-bold text-emerald-700 bg-emerald-100/50 py-1.5 rounded hover:bg-emerald-100 transition border border-emerald-200/50">HTML</button>
+                                    <button @click.stop="deleteQuote(quote.originalIndex)"
+                                        class="text-[9px] font-bold text-red-600 bg-red-100/50 px-2.5 py-1.5 rounded hover:bg-red-100 transition border border-red-200/50">✕</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -599,6 +628,7 @@
                     activeTab: 'tl',
                     clientName: '',
                     agentName: '',
+                    expandedAgent: null,
                     savedQuotes: JSON.parse(localStorage.getItem('dtSavedQuotes') || '[]'),
                     unlockedAgents: [],
                     adminPasswords: {},
