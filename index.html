@@ -444,11 +444,12 @@
             <div class="w-full relative">
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
 
-                    <div class="bg-gray-900 text-white p-6 text-center relative overflow-hidden">
+                    <div
+                        class="bg-[#f2efe9] text-[#332b21] p-6 text-center relative overflow-hidden border-b border-[#e5ded0]">
                         <div
-                            class="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent">
+                            class="absolute inset-0 opacity-80 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white via-transparent to-transparent">
                         </div>
-                        <h3 class="font-bold tracking-widest text-[10px] text-gray-400 uppercase mb-1">
+                        <h3 class="font-bold tracking-widest text-[10px] text-[#9c8e76] uppercase mb-1">
                             Total STO Configuration <span v-if="clientName" class="text-dt-orange ml-1">- {{ clientName
                                 }}</span>
                         </h3>
@@ -504,10 +505,18 @@
                                     <span class="font-bold text-orange-900 bg-white px-2 py-0.5 rounded shadow-sm">{{
                                         format(stoTotal * 1.25) }}</span>
                                 </div>
-                                <div class="flex justify-between text-xs mt-1 mb-3 opacity-70">
-                                    <span class="text-orange-700 font-medium tracking-wide">Namibian Per Pax</span>
-                                    <span class="font-bold px-1 rounded">{{
-                                        format((stoTotal * 1.25)/Math.max(1, numPax)) }}</span>
+                                <div class="flex justify-between text-xs mt-1 opacity-80">
+                                    <span class="text-orange-800 font-medium tracking-wide">Namibian Double Sharing
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">{{ format(perPaxCosting.doubleStoPP * 1.25)
+                                        }}</span>
+                                </div>
+                                <div v-if="singlePax > 0"
+                                    class="flex justify-between text-xs mt-1 mb-3 opacity-80 border-b border-orange-200/40 pb-2">
+                                    <span class="text-orange-800 font-medium tracking-wide">Namibian Single Traveler
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">{{ format(perPaxCosting.singleStoPP * 1.25)
+                                        }}</span>
                                 </div>
 
                                 <div v-if="botswanaUsd > 0"
@@ -552,10 +561,16 @@
                                     <span class="font-bold text-yellow-400 bg-black px-2 py-0.5 rounded">{{
                                         format((stoTotal * 1.25) / 0.82) }}</span>
                                 </div>
-                                <div class="flex justify-between text-xs mt-1 mb-3 text-gray-500">
-                                    <span class="font-medium tracking-wide">Namibian Per Pax</span>
-                                    <span class="font-bold px-1 rounded">{{
-                                        format(((stoTotal * 1.25) / 0.82)/Math.max(1, numPax)) }}</span>
+                                <div class="flex justify-between text-xs mt-1 text-gray-400">
+                                    <span class="font-medium tracking-wide">Namibian Double Sharing PP</span>
+                                    <span class="font-bold px-1 rounded">{{ format((perPaxCosting.doubleStoPP * 1.25) /
+                                        0.82) }}</span>
+                                </div>
+                                <div v-if="singlePax > 0"
+                                    class="flex justify-between text-xs mt-1 mb-3 text-gray-400 border-b border-gray-700/50 pb-2">
+                                    <span class="font-medium tracking-wide">Namibian Single Traveler PP</span>
+                                    <span class="font-bold px-1 rounded">{{ format((perPaxCosting.singleStoPP * 1.25) /
+                                        0.82) }}</span>
                                 </div>
 
                                 <div v-if="botswanaUsd > 0"
@@ -597,10 +612,18 @@
                                     <span class="font-bold text-emerald-900 bg-white px-2 py-0.5 rounded shadow-sm">{{
                                         format(stoTotal * 1.25) }}</span>
                                 </div>
-                                <div class="flex justify-between text-xs mt-1 mb-3 opacity-70">
-                                    <span class="text-emerald-700 font-medium tracking-wide">Namibian Per Pax</span>
-                                    <span class="font-bold px-1 rounded">{{
-                                        format((stoTotal * 1.25)/Math.max(1, numPax)) }}</span>
+                                <div class="flex justify-between text-xs mt-1 opacity-80">
+                                    <span class="text-emerald-800 font-medium tracking-wide">Namibian Double Sharing
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">{{ format(perPaxCosting.doubleStoPP * 1.25)
+                                        }}</span>
+                                </div>
+                                <div v-if="singlePax > 0"
+                                    class="flex justify-between text-xs mt-1 mb-3 opacity-80 border-b border-emerald-200/50 pb-2">
+                                    <span class="text-emerald-800 font-medium tracking-wide">Namibian Single Traveler
+                                        PP</span>
+                                    <span class="font-bold px-1 rounded">{{ format(perPaxCosting.singleStoPP * 1.25)
+                                        }}</span>
                                 </div>
 
                                 <div v-if="botswanaUsd > 0"
@@ -691,6 +714,16 @@
                         acc[agent].push({ ...quote, originalIndex: index });
                         return acc;
                     }, {});
+                },
+                perPaxCosting() {
+                    const t = this.storeTotals;
+                    const sharedTotal = t.vehicle + t.guideFee + t.guideAcc + this.calculatedFuel + this.extrasTotal + this.activitiesTotal;
+                    const sharedPP = sharedTotal / Math.max(1, this.numPax);
+                    return {
+                        sharedPP,
+                        doubleStoPP: t.group + sharedPP,
+                        singleStoPP: t.single + sharedPP
+                    };
                 },
                 storeTotals() {
                     let group = 0, single = 0, vehicle = 0, guideFee = 0, guideAcc = 0;
@@ -851,8 +884,8 @@
         </div>
         <h3>Itinerary Summary</h3>
         <table>
-            <tr><th>Day</th><th>Region</th><th>Lodge</th></tr>
-            ${q.itinerary.map((d, i) => `<tr><td>${i + 1}</td><td>${d.region || '-'}</td><td style="font-weight: 500;">${d.lodge || '-'}</td></tr>`).join('')}
+            <tr><th style="width: 30px;">Day</th><th>Region</th><th>Lodge</th><th style="text-align: right;">Sharing PP</th><th style="text-align: right;">Single PP</th></tr>
+            ${q.itinerary.map((d, i) => `<tr><td>${i + 1}</td><td>${d.region || '-'}</td><td style="font-weight: 500;">${d.lodge || '-'}</td><td style="text-align: right;">${format(d.pp || 0)}</td><td style="text-align: right;">${format(d.single || 0)}</td></tr>`).join('')}
         </table>
 
         ${(q.fuelDistance > 0 || (q.activities && q.activities.length > 0) || (Array.isArray(q.extras) && q.extras.length > 0)) ? `
