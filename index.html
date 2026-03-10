@@ -816,6 +816,17 @@
             <tr><th>Day</th><th>Region</th><th>Lodge</th></tr>
             ${q.itinerary.map((d, i) => `<tr><td>${i + 1}</td><td>${d.region || '-'}</td><td style="font-weight: 500;">${d.lodge || '-'}</td></tr>`).join('')}
         </table>
+
+        ${(q.fuelDistance > 0 || (q.activities && q.activities.length > 0) || (Array.isArray(q.extras) && q.extras.length > 0)) ? `
+        <h3>Additional Elements</h3>
+        <table>
+            <tr><th>Type</th><th>Description / Name</th></tr>
+            ${q.fuelDistance > 0 ? `<tr><td style="color: #71717a;">Fuel & Distance</td><td style="font-weight: 500;">${q.fuelDistance} km (${q.fuelType === 'low' ? 'Low' : 'High'} consumption)</td></tr>` : ''}
+            ${(q.activities || []).map(a => a.name ? `<tr><td style="color: #71717a;">Activity</td><td style="font-weight: 500;">${a.name} ${a.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td></tr>` : '').join('')}
+            ${(Array.isArray(q.extras) ? q.extras : []).map(e => e.name ? `<tr><td style="color: #71717a;">Extra</td><td style="font-weight: 500;">${e.name} ${e.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td></tr>` : '').join('')}
+        </table>
+        ` : ''}
+
         <h3>Pricing Options</h3>
         <div class="matrix">
             <div class="matrix-card">
