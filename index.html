@@ -964,14 +964,7 @@
             ${qBotsTotal > 0 ? `<tr><td style="color: #d87a4d; font-weight: bold;">Botswana STO Base (USD)</td><td style="text-align: right; font-weight: bold; color: #d87a4d;">$${format(qBotsTotal)}</td></tr>` : ''}
         </table>
 
-        ${(q.activities && q.activities.length > 0) || (Array.isArray(q.extras) && q.extras.length > 0) ? `
-        <h3>Additional Elements Detail</h3>
-        <table>
-            <tr><th>Type</th><th>Description / Name</th><th style="text-align: right;">Rate (NAD)</th></tr>
-            ${(q.activities || []).map(a => a.name ? `<tr><td style="color: #71717a;">Activity</td><td style="font-weight: 500;">${a.name} ${a.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td><td style="text-align: right; font-weight: 500;">${format(a.rate * (a.isPerPax ? Math.max(1, q.numPax) : 1))}</td></tr>` : '').join('')}
-            ${(Array.isArray(q.extras) ? q.extras : []).map(e => e.name ? `<tr><td style="color: #71717a;">Extra</td><td style="font-weight: 500;">${e.name} ${e.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td><td style="text-align: right; font-weight: 500;">${format(e.rate * (e.isPerPax ? Math.max(1, q.numPax) : 1))}</td></tr>` : '').join('')}
-        </table>
-        ` : ''}
+
 
         <h3>Pricing Summary</h3>
         <div class="matrix">
