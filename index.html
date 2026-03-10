@@ -222,31 +222,31 @@
                                             class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
                                             new Date(quote.timestamp).toLocaleDateString() }}</span>
                                     </div>
-                                    <div class="flex gap-3 mt-2 mb-1 items-stretch">
-                                        <div class="flex-1 flex gap-2">
+                                    <div class="flex gap-4 mt-3 mb-2 items-stretch">
+                                        <div class="flex-1 flex gap-3">
                                             <button @click.stop="exportDocument(quote.originalIndex, 'costing')"
-                                                class="flex-1 text-[9px] tracking-wider font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2 px-1">COSTING</button>
+                                                class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">COSTING</button>
                                             <div class="flex-1 flex flex-col relative group" style="min-width: 0;">
                                                 <button @click.stop="exportDocument(quote.originalIndex, 'invoice')"
-                                                    class="w-full h-full text-[9px] tracking-wider font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2 px-1">INVOICE</button>
+                                                    class="w-full h-full text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">INVOICE</button>
                                                 <div v-if="quote.customInvoices && quote.customInvoices.length > 0"
-                                                    class="absolute top-full mt-1 w-[150%] left-[-25%] border border-[#d4c391] rounded shadow-lg z-50 hidden group-hover:flex flex-col text-[10px] bg-white overflow-hidden pb-1">
+                                                    class="absolute top-full mt-2 w-[160%] left-[-30%] border border-[#d4c391] rounded-md shadow-xl z-50 hidden group-hover:flex flex-col text-[11px] bg-white overflow-hidden pb-1">
                                                     <div
-                                                        class="px-2 py-1 font-bold text-gray-500 bg-gray-50 border-b border-gray-100">
+                                                        class="px-3 py-2 font-bold text-gray-500 bg-gray-50 border-b border-gray-100">
                                                         Saved Invoices</div>
                                                     <div v-for="(inv, i) in quote.customInvoices" :key="i"
                                                         @click.stop="downloadCustomInvoice(quote.originalIndex, i)"
-                                                        class="px-2 py-2 hover:bg-[#f4ebd0] cursor-pointer border-b border-gray-100 truncate font-semibold text-gray-800"
+                                                        class="px-3 py-2.5 hover:bg-[#f4ebd0] cursor-pointer border-b border-gray-50 truncate font-semibold text-gray-800 transition-colors"
                                                         :title="inv.name">
                                                         {{ inv.name || `Invoice ${i + 1}` }}
                                                     </div>
                                                 </div>
                                             </div>
                                             <button @click.stop="exportDocument(quote.originalIndex, 'itinerary')"
-                                                class="flex-1 text-[9px] tracking-wider font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2 px-1">ITINERARY</button>
+                                                class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">ITINERARY</button>
                                         </div>
                                         <button @click.stop="deleteQuote(quote.originalIndex)"
-                                            class="text-[10px] font-bold text-red-600 bg-red-50 px-3 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200 shrink-0">✕</button>
+                                            class="text-[11px] font-bold text-red-600 bg-red-50 px-4 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200 shrink-0">✕</button>
                                     </div>
                                 </div>
                             </template>
@@ -825,6 +825,20 @@
                     return total;
                 }
             },
+            mounted() {
+                window.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'SAVE_DT_INVOICE') {
+                        const { idx, name, html } = event.data;
+                        const quote = this.savedQuotes[idx];
+                        if (quote) {
+                            if (!quote.customInvoices) quote.customInvoices = [];
+                            quote.customInvoices.push({ name, html });
+                            localStorage.setItem('dtSavedQuotes', JSON.stringify(this.savedQuotes));
+                            alert('Invoice saved successfully to Costing App!');
+                        }
+                    }
+                });
+            },
             methods: {
                 addDay() { this.itinerary.push({ region: '', lodge: '', attachedPdf: null, pp: 0, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 }); },
                 removeDay(index) { this.itinerary.splice(index, 1); },
@@ -1097,15 +1111,28 @@
                     if(subtotalIndex === -1) return;
                     
                     const namibiaRow = rows[1];
-                    const namibiaAmtCell = namibiaRow.cells[namibiaRow.cells.length - 1]; // amount td
+                    const namibiaAmtCell = namibiaRow.cells[namibiaRow.cells.length - 1];
+                    const namibiaTotalPPCell = namibiaRow.cells[namibiaRow.cells.length - 2];
+                    const namibiaPaxCell = namibiaRow.cells[namibiaRow.cells.length - 3];
                     
                     const subtotalCell = rows[subtotalIndex].cells[rows[subtotalIndex].cells.length - 1];
                     const vatCell = rows[subtotalIndex + 1].cells[rows[subtotalIndex + 1].cells.length - 1];
                     const exclCell = rows[subtotalIndex + 2].cells[rows[subtotalIndex + 2].cells.length - 1];
                     const totalCell = rows[subtotalIndex + 3].cells[rows[subtotalIndex + 3].cells.length - 1];
                     
-                    const recalc = () => {
-                        const namAmt = parseCurrency(namibiaAmtCell.innerText);
+                    const recalc = (source) => {
+                        let namAmt = parseCurrency(namibiaAmtCell.innerText);
+                        const pp = parseCurrency(namibiaTotalPPCell.innerText);
+                        const pax = parseInt(namibiaPaxCell.innerText) || 1;
+                        
+                        // Prevent cursor jump issues by not updating the actively edited cell
+                        if (source === 'pp' || source === 'pax') {
+                            namAmt = pp * pax;
+                            namibiaAmtCell.innerText = 'NAD ' + formatCurrency(namAmt);
+                        } else if (source === 'amount') {
+                            namibiaTotalPPCell.innerText = 'NAD ' + formatCurrency(namAmt / Math.max(1, pax));
+                        }
+                        
                         const exclAmt = namAmt / 1.15;
                         const vatAmt = namAmt - exclAmt;
                         
@@ -1115,7 +1142,9 @@
                         totalCell.innerText = 'NAD ' + formatCurrency(namAmt);
                     };
                     
-                    namibiaAmtCell.addEventListener('input', recalc);
+                    namibiaAmtCell.addEventListener('input', () => recalc('amount'));
+                    namibiaTotalPPCell.addEventListener('input', () => recalc('pp'));
+                    namibiaPaxCell.addEventListener('input', () => recalc('pax'));
                 });
     <\/script>
 
