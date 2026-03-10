@@ -875,10 +875,21 @@
                     const calcFuel = (q.fuelDistance || 0) * (q.fuelType === 'low' ? 3.125 : 4.0);
                     const activitiesTotal = q.activities.reduce((sum, act) => sum + (act.isPerPax ? (act.rate * Math.max(1, q.numPax)) : act.rate), 0);
                     const extTot = Array.isArray(q.extras) ? q.extras.reduce((sum, ext) => sum + (ext.isPerPax ? (ext.rate * Math.max(1, q.numPax)) : ext.rate), 0) : ((q.extras?.guideFood || 0) + (q.extras?.vehicleReturn || 0) + (q.extras?.other || 0));
-                    let stoTotal = (group * Math.max(1, q.numPax)) + single + vehicle + guideFee + guideAcc + calcFuel + extTot + activitiesTotal;
+                    const sharedTotal = vehicle + guideFee + guideAcc + calcFuel + extTot + activitiesTotal;
+                    const sharedPP = sharedTotal / Math.max(1, q.numPax);
+
+                    const doubleStoPP = group + sharedPP;
+                    const singleStoPP = single + sharedPP;
+
+                    let stoTotal = (doubleStoPP * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)) + (singleStoPP * Math.max(0, q.singlePax || 0));
 
                     const dtTotal = stoTotal * 1.25;
                     const tlTotal = dtTotal / 0.82;
+
+                    const dtNamibianDoublePP = doubleStoPP * 1.25;
+                    const dtNamibianSinglePP = singleStoPP * 1.25;
+                    const tlNamibianDoublePP = dtNamibianDoublePP / 0.82;
+                    const tlNamibianSinglePP = dtNamibianSinglePP / 0.82;
 
                     const qBotsDoublePP = q.botswanaDoublePP !== undefined ? q.botswanaDoublePP : (q.botswanaUsd || 0);
                     const qBotsSinglePP = q.botswanaSinglePP || 0;
@@ -909,10 +920,11 @@
         th { text-align: left; padding: 12px; background: #fafafa; color: #71717a; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
         td { padding: 12px; border-bottom: 1px solid #f4f4f5; color: #3f3f46; }
         .matrix { display: flex; gap: 20px; margin-top: 30px; }
-        .matrix-card { flex: 1; padding: 20px; border-radius: 8px; border: 1px solid #e4e4e7; background: #fafafa; }
-        .m-title { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: #71717a; margin-bottom: 10px; }
-        .m-val { font-size: 24px; font-weight: 700; color: #18181b; }
-        .m-sub { font-size: 12px; color: #d87a4d; margin-top: 5px; font-weight: 600;}
+        .matrix-card { flex: 1; padding: 25px; border-radius: 8px; border: 1px solid #e4e4e7; background: #fafafa; }
+        .m-title { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: #71717a; margin-bottom: 12px; }
+        .m-val { font-size: 24px; font-weight: 800; color: #18181b; }
+        .m-sub { font-size: 20px; color: #18181b; margin-top: 15px; font-weight: 800;}
+        .m-pp { font-size: 14px; color: #52525b; margin-top: 6px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -936,15 +948,28 @@
         <table>
             <tr><th style="width: 30px;">Day</th><th>Region</th><th>Lodge</th><th style="text-align: right;">Sharing PP</th><th style="text-align: right;">Single PP</th></tr>
             ${q.itinerary.map((d, i) => `<tr><td>${i + 1}</td><td>${d.region || '-'}</td><td style="font-weight: 500;">${d.lodge || '-'}</td><td style="text-align: right;">${format(d.pp || 0)}</td><td style="text-align: right;">${format(d.single || 0)}</td></tr>`).join('')}
+            <tr><td colspan="3" style="text-align: right; font-weight: bold; padding-top: 15px;">Sub Total:</td><td style="text-align: right; font-weight: bold; padding-top: 15px; color: #d87a4d;">${format(group)}</td><td style="text-align: right; font-weight: bold; padding-top: 15px; color: #d87a4d;">${format(single)}</td></tr>
         </table>
 
-        ${(q.fuelDistance > 0 || (q.activities && q.activities.length > 0) || (Array.isArray(q.extras) && q.extras.length > 0)) ? `
-        <h3>Additional Elements</h3>
+        <h3>Cost Breakdown</h3>
         <table>
-            <tr><th>Type</th><th>Description / Name</th><th>Rate (NAD)</th></tr>
-            ${q.fuelDistance > 0 ? `<tr><td style="color: #71717a;">Fuel & Distance</td><td style="font-weight: 500;">${q.fuelDistance} km (${q.fuelType === 'low' ? 'Low' : 'High'} consumption)</td><td style="font-weight: 500;">${format(calcFuel)}</td></tr>` : ''}
-            ${(q.activities || []).map(a => a.name ? `<tr><td style="color: #71717a;">Activity</td><td style="font-weight: 500;">${a.name} ${a.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td><td style="font-weight: 500;">${format(a.rate * (a.isPerPax ? Math.max(1, q.numPax) : 1))}</td></tr>` : '').join('')}
-            ${(Array.isArray(q.extras) ? q.extras : []).map(e => e.name ? `<tr><td style="color: #71717a;">Extra</td><td style="font-weight: 500;">${e.name} ${e.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td><td style="font-weight: 500;">${format(e.rate * (e.isPerPax ? Math.max(1, q.numPax) : 1))}</td></tr>` : '').join('')}
+            <tr><th>Cost Component</th><th style="text-align: right;">Total (NAD)</th></tr>
+            <tr><td style="color: #71717a;">Double Group Accommodation (${Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)}x)</td><td style="text-align: right; font-weight: 500;">${format(group * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax))}</td></tr>
+            <tr><td style="color: #71717a;">Single Group Accommodation (${Math.max(0, q.singlePax || 0)}x)</td><td style="text-align: right; font-weight: 500;">${format(single * Math.max(0, q.singlePax || 0))}</td></tr>
+            <tr><td style="color: #71717a;">Vehicle Hire</td><td style="text-align: right; font-weight: 500;">${format(vehicle)}</td></tr>
+            <tr><td style="color: #71717a;">Guide Acc & Fee</td><td style="text-align: right; font-weight: 500;">${format(guideFee + guideAcc)}</td></tr>
+            <tr><td style="color: #71717a;">Fuel & Distance (${q.fuelDistance} km)</td><td style="text-align: right; font-weight: 500;">${format(calcFuel)}</td></tr>
+            <tr><td style="color: #71717a;">Activities Total</td><td style="text-align: right; font-weight: 500;">${format(activitiesTotal)}</td></tr>
+            <tr><td style="color: #71717a;">Other Extras Total</td><td style="text-align: right; font-weight: 500;">${format(extTot)}</td></tr>
+            ${qBotsTotal > 0 ? `<tr><td style="color: #d87a4d; font-weight: bold;">Botswana STO Base (USD)</td><td style="text-align: right; font-weight: bold; color: #d87a4d;">$${format(qBotsTotal)}</td></tr>` : ''}
+        </table>
+
+        ${(q.activities && q.activities.length > 0) || (Array.isArray(q.extras) && q.extras.length > 0) ? `
+        <h3>Additional Elements Detail</h3>
+        <table>
+            <tr><th>Type</th><th>Description / Name</th><th style="text-align: right;">Rate (NAD)</th></tr>
+            ${(q.activities || []).map(a => a.name ? `<tr><td style="color: #71717a;">Activity</td><td style="font-weight: 500;">${a.name} ${a.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td><td style="text-align: right; font-weight: 500;">${format(a.rate * (a.isPerPax ? Math.max(1, q.numPax) : 1))}</td></tr>` : '').join('')}
+            ${(Array.isArray(q.extras) ? q.extras : []).map(e => e.name ? `<tr><td style="color: #71717a;">Extra</td><td style="font-weight: 500;">${e.name} ${e.isPerPax ? '(Per Pax)' : '(Flat Rate)'}</td><td style="text-align: right; font-weight: 500;">${format(e.rate * (e.isPerPax ? Math.max(1, q.numPax) : 1))}</td></tr>` : '').join('')}
         </table>
         ` : ''}
 
@@ -953,40 +978,43 @@
             ${(!q.activeTab || q.activeTab === 'dt') ? `
             <div class="matrix-card">
                 <div class="m-title">Desert Tracks (25%)</div>
-                <div class="m-val">${format(dtTotal)} NAD</div>
-                <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Namibian Per Pax: ${format(dtTotal / Math.max(1, q.numPax))}</div>
+                <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
+                <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
+                ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
                 ${qBotsTotal > 0 ? `
-                <div style="margin-top: 15px; border-top: 1px dashed #e4e4e7; padding-top: 15px;">
-                    <div class="m-sub">+$${format(dtBotsTotal)} USD Botswana</div>
-                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}
-                    ${(qBotsSinglePP > 0) ? `<br>Botswana Single PP: $${format(dtBotsSinglePP)}` : ''}</div>
+                <div style="margin-top: 25px; border-top: 1px dashed #e4e4e7; padding-top: 25px;">
+                    <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
+                    <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
+                    ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
             </div>` : ''}
             
             ${q.activeTab === 'tl' ? `
             <div class="matrix-card">
                 <div class="m-title">Travel Local (18%)</div>
-                <div class="m-val">${format(tlTotal)} NAD</div>
-                <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Namibian Per Pax: ${format(tlTotal / Math.max(1, q.numPax))}</div>
+                <div class="m-val">${format(tlTotal)} NAD Client Invoice</div>
+                <div class="m-pp">Namibian Double Sharing PP: ${format(tlNamibianDoublePP)}</div>
+                ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(tlNamibianSinglePP)}</div>` : ''}
                 ${qBotsTotal > 0 ? `
-                <div style="margin-top: 15px; border-top: 1px dashed #e4e4e7; padding-top: 15px;">
-                    <div class="m-sub">+$${format(tlBotsTotal)} USD Botswana</div>
-                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Double Sharing PP: $${format(tlBotsDoublePP)}
-                    ${(qBotsSinglePP > 0) ? `<br>Botswana Single PP: $${format(tlBotsSinglePP)}` : ''}</div>
+                <div style="margin-top: 25px; border-top: 1px dashed #e4e4e7; padding-top: 25px;">
+                    <div class="m-val">$${format(tlBotsTotal)} USD Botswana Client Invoice</div>
+                    <div class="m-pp">Botswana Double Sharing PP: $${format(tlBotsDoublePP)}</div>
+                    ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(tlBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
             </div>` : ''}
             
             ${q.activeTab === 'dt_agent' ? `
             <div class="matrix-card">
                 <div class="m-title">Consultant (25% Total)</div>
-                <div class="m-val">${format(dtTotal)} NAD</div>
-                <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Namibian Per Pax: ${format(dtTotal / Math.max(1, q.numPax))}</div>
-                <div style="font-size: 11px; color: #d87a4d; margin-top: 8px; font-weight: bold;">(Includes 20% DT & 5% Agent Override)</div>
+                <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
+                <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
+                ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
+                <div style="font-size: 11px; color: #d87a4d; margin-top: 12px; font-weight: bold;">(Includes 20% DT & 5% Agent Override)</div>
                 ${qBotsTotal > 0 ? `
-                <div style="margin-top: 15px; border-top: 1px dashed #e4e4e7; padding-top: 15px;">
-                    <div class="m-sub">+$${format(dtBotsTotal)} USD Botswana</div>
-                    <div style="font-size: 11px; color: #a1a1aa; margin-top: 2px;">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}
-                    ${(qBotsSinglePP > 0) ? `<br>Botswana Single PP: $${format(dtBotsSinglePP)}` : ''}</div>
+                <div style="margin-top: 25px; border-top: 1px dashed #e4e4e7; padding-top: 25px;">
+                    <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
+                    <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
+                    ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
                 </div>` : ''}
             </div>` : ''}
         </div>
