@@ -228,9 +228,9 @@
                                                 class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">COSTING</button>
                                             <div class="flex-1 flex flex-col relative group" style="min-width: 0;">
                                                 <button @click.stop="exportDocument(quote.originalIndex, 'invoice')"
-                                                    class="w-full h-full text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">INVOICE</button>
+                                                    class="w-full h-full text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2 relative z-10 group-hover:border-b-transparent group-hover:rounded-b-none">INVOICE</button>
                                                 <div v-if="quote.customInvoices && quote.customInvoices.length > 0"
-                                                    class="absolute top-full mt-2 w-[160%] left-[-30%] border border-[#d4c391] rounded-md shadow-xl z-50 hidden group-hover:flex flex-col text-[11px] bg-white overflow-hidden pb-1">
+                                                    class="absolute top-full w-[160%] left-[-30%] border border-[#d4c391] border-t-0 rounded-b-md shadow-xl z-50 hidden group-hover:flex flex-col text-[11px] bg-white overflow-hidden pb-1">
                                                     <div
                                                         class="px-3 py-2 font-bold text-gray-500 bg-gray-50 border-b border-gray-100">
                                                         Saved Invoices</div>
@@ -1063,6 +1063,16 @@
                     <td contenteditable="true" style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b;">NAD ${format(finalTotalNAD / Math.max(1, q.numPax))}</td>
                     <td contenteditable="true" style="padding: 15px; text-align: right; vertical-align: top; border-left: 1px solid #18181b;">NAD ${format(finalTotalNAD)}</td>
                 </tr>
+                </tr>
+                <tr style="background-color: #fafafa; border-top: 1px dotted #d4d4d8;">
+                    <td style="padding: 15px; vertical-align: top;">
+                        <div style="font-weight: 500; font-size: 13px; color: #52525b;">Namibia Safari (Single Supplement)</div>
+                        <div contenteditable="true" style="margin-top: 5px; min-height: 20px; outline: none; border: 1px dashed #ccc; padding: 5px 10px; font-size: 11px; color: #71717a; max-width: 300px; background: white;">Click to add notes...</div>
+                    </td>
+                    <td contenteditable="true" style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b;">0</td>
+                    <td contenteditable="true" style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b;">NAD 0.00</td>
+                    <td contenteditable="true" style="padding: 15px; text-align: right; vertical-align: top; border-left: 1px solid #18181b;">NAD 0.00</td>
+                </tr>
                 ${finalTotalUSD > 0 ? `
                 <tr style="background-color: #e5e5e5;">
                     <td style="padding: 15px; vertical-align: top; border-top: 1px solid #d87a4d;">
@@ -1111,40 +1121,58 @@
                     if(subtotalIndex === -1) return;
                     
                     const namibiaRow = rows[1];
-                    const namibiaAmtCell = namibiaRow.cells[namibiaRow.cells.length - 1];
-                    const namibiaTotalPPCell = namibiaRow.cells[namibiaRow.cells.length - 2];
-                    const namibiaPaxCell = namibiaRow.cells[namibiaRow.cells.length - 3];
+                    const namAmtCell = namibiaRow.cells[namibiaRow.cells.length - 1];
+                    const namPPCell = namibiaRow.cells[namibiaRow.cells.length - 2];
+                    const namPaxCell = namibiaRow.cells[namibiaRow.cells.length - 3];
+                    
+                    const singleRow = rows[2];
+                    const sinAmtCell = singleRow.cells[singleRow.cells.length - 1];
+                    const sinPPCell = singleRow.cells[singleRow.cells.length - 2];
+                    const sinPaxCell = singleRow.cells[singleRow.cells.length - 3];
                     
                     const subtotalCell = rows[subtotalIndex].cells[rows[subtotalIndex].cells.length - 1];
                     const vatCell = rows[subtotalIndex + 1].cells[rows[subtotalIndex + 1].cells.length - 1];
                     const exclCell = rows[subtotalIndex + 2].cells[rows[subtotalIndex + 2].cells.length - 1];
                     const totalCell = rows[subtotalIndex + 3].cells[rows[subtotalIndex + 3].cells.length - 1];
                     
-                    const recalc = (source) => {
-                        let namAmt = parseCurrency(namibiaAmtCell.innerText);
-                        const pp = parseCurrency(namibiaTotalPPCell.innerText);
-                        const pax = parseInt(namibiaPaxCell.innerText) || 1;
-                        
-                        // Prevent cursor jump issues by not updating the actively edited cell
-                        if (source === 'pp' || source === 'pax') {
-                            namAmt = pp * pax;
-                            namibiaAmtCell.innerText = 'NAD ' + formatCurrency(namAmt);
-                        } else if (source === 'amount') {
-                            namibiaTotalPPCell.innerText = 'NAD ' + formatCurrency(namAmt / Math.max(1, pax));
+                    const recalcRow = (source, rowType) => {
+                        let amountCell, ppCell, paxCell;
+                        if (rowType === 'main') {
+                            amountCell = namAmtCell; ppCell = namPPCell; paxCell = namPaxCell;
+                        } else {
+                            amountCell = sinAmtCell; ppCell = sinPPCell; paxCell = sinPaxCell;
                         }
                         
-                        const exclAmt = namAmt / 1.15;
-                        const vatAmt = namAmt - exclAmt;
+                        let amt = parseCurrency(amountCell.innerText);
+                        const pp = parseCurrency(ppCell.innerText);
+                        const pax = parseInt(paxCell.innerText) || 0;
                         
-                        subtotalCell.innerText = 'NAD ' + formatCurrency(namAmt);
+                        // Recalculate cell based on input
+                        if (source === 'pp' || source === 'pax') {
+                            amt = pp * pax;
+                            amountCell.innerText = 'NAD ' + formatCurrency(amt);
+                        } else if (source === 'amount') {
+                            ppCell.innerText = 'NAD ' + formatCurrency(pax > 0 ? amt / pax : 0);
+                        }
+                        
+                        // Update totals
+                        const totalAmt = parseCurrency(namAmtCell.innerText) + parseCurrency(sinAmtCell.innerText);
+                        const exclAmt = totalAmt / 1.15;
+                        const vatAmt = totalAmt - exclAmt;
+                        
+                        subtotalCell.innerText = 'NAD ' + formatCurrency(totalAmt);
                         vatCell.innerText = 'NAD ' + formatCurrency(vatAmt);
                         exclCell.innerText = 'NAD ' + formatCurrency(exclAmt);
-                        totalCell.innerText = 'NAD ' + formatCurrency(namAmt);
+                        totalCell.innerText = 'NAD ' + formatCurrency(totalAmt);
                     };
                     
-                    namibiaAmtCell.addEventListener('input', () => recalc('amount'));
-                    namibiaTotalPPCell.addEventListener('input', () => recalc('pp'));
-                    namibiaPaxCell.addEventListener('input', () => recalc('pax'));
+                    namAmtCell.addEventListener('input', () => recalcRow('amount', 'main'));
+                    namPPCell.addEventListener('input', () => recalcRow('pp', 'main'));
+                    namPaxCell.addEventListener('input', () => recalcRow('pax', 'main'));
+                    
+                    sinAmtCell.addEventListener('input', () => recalcRow('amount', 'single'));
+                    sinPPCell.addEventListener('input', () => recalcRow('pp', 'single'));
+                    sinPaxCell.addEventListener('input', () => recalcRow('pax', 'single'));
                 });
     <\/script>
 
