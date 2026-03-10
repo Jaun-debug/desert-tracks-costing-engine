@@ -761,7 +761,7 @@
                     return {
                         sharedPP,
                         doubleStoPP: t.group + sharedPP,
-                        singleStoPP: t.single + sharedPP
+                        singleStoPP: t.group + t.single + sharedPP
                     };
                 },
                 storeTotals() {
@@ -789,7 +789,7 @@
                 stoTotal() {
                     const t = this.storeTotals;
                     let total = 0;
-                    total += (t.group * Math.max(0, this.doublePax));
+                    total += (t.group * Math.max(0, this.numPax));
                     total += (t.single * Math.max(0, this.singlePax));
                     total += t.vehicle + t.guideFee + t.guideAcc;
                     total += this.calculatedFuel + this.extrasTotal;
@@ -879,7 +879,7 @@
                     const sharedPP = sharedTotal / Math.max(1, q.numPax);
 
                     const doubleStoPP = group + sharedPP;
-                    const singleStoPP = single + sharedPP;
+                    const singleStoPP = group + single + sharedPP;
 
                     let stoTotal = (doubleStoPP * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)) + (singleStoPP * Math.max(0, q.singlePax || 0));
 
@@ -955,8 +955,8 @@
         <h3>Cost Breakdown</h3>
         <table>
             <tr><th>Cost Component</th><th style="text-align: right;">Total (NAD)</th></tr>
-            <tr><td style="color: #71717a;">Double Group Accommodation (${Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)}x)</td><td style="text-align: right; font-weight: 500;">${format(group * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax))}</td></tr>
-            <tr><td style="color: #71717a;">Single Group Accommodation (${Math.max(0, q.singlePax || 0)}x)</td><td style="text-align: right; font-weight: 500;">${format(single * Math.max(0, q.singlePax || 0))}</td></tr>
+            <tr><td style="color: #71717a;">Base Group Accommodation (${Math.max(0, q.numPax)}x)</td><td style="text-align: right; font-weight: 500;">${format(group * Math.max(0, q.numPax))}</td></tr>
+            <tr><td style="color: #71717a;">Single Supplements (${Math.max(0, q.singlePax || 0)}x)</td><td style="text-align: right; font-weight: 500;">${format(single * Math.max(0, q.singlePax || 0))}</td></tr>
             <tr><td style="color: #71717a;">Vehicle Hire</td><td style="text-align: right; font-weight: 500;">${format(vehicle)}</td></tr>
             <tr><td style="color: #71717a;">Guide Acc & Fee</td><td style="text-align: right; font-weight: 500;">${format(guideFee + guideAcc)}</td></tr>
             <tr><td style="color: #71717a;">Fuel & Distance (${q.fuelDistance} km)</td><td style="text-align: right; font-weight: 500;">${format(calcFuel)}</td></tr>
