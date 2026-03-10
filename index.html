@@ -994,9 +994,8 @@
             <div style="font-size: 20px; font-weight: 600; color: #27272a; margin-top: 4px;">${q.clientName} (${q.numPax} PAX)</div>
         </div>
         `}
-        `}
 
-        ${ type === 'invoice' ? `
+        ${type === 'invoice' ? `
         <div style="border: 2px solid #18181b; margin-top: 30px;">
             <h3 style="text-align: center; margin: 15px 0 10px 0; font-family: 'Open Sans', sans-serif; font-size: 16px; font-weight: 700; border-bottom: none;">${q.itinerary.length} - Day Namibia Safari</h3>
             <table style="width: 100%; border-collapse: collapse; margin-top: 0;">
@@ -1131,11 +1130,10 @@
                 </div>` : ''}
             </div>` : ''}
         </div>
-        `}
         ` : ''}
 
-        < !--Invoice Footers-- >
-        ${ type === 'invoice' ? `
+        <!-- Invoice Footers -->
+        ${type === 'invoice' ? `
         <div style="margin-top: 40px; padding: 20px; background: #fdfbf7; border: 1px solid #e4e4e7; border-radius: 8px; text-align: center;">
             <div style="font-weight: 600; font-size: 14px;">Thank you - Your business is appreciated!</div>
         </div>
