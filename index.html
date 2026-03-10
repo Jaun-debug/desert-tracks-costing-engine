@@ -214,17 +214,17 @@
                                             class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
                                             new Date(quote.timestamp).toLocaleDateString() }}</span>
                                     </div>
-                                    <div class="flex gap-2 mt-1 mb-1 items-stretch">
+                                    <div class="flex gap-3 mt-2 mb-1 items-stretch">
                                         <div class="flex-1 flex gap-2">
                                             <button @click.stop="exportDocument(quote.originalIndex, 'costing')"
-                                                class="flex-1 text-[9px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm py-1.5">COSTING</button>
+                                                class="flex-1 text-[9px] tracking-wider font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2 px-1">COSTING</button>
                                             <button @click.stop="exportDocument(quote.originalIndex, 'invoice')"
-                                                class="flex-1 text-[9px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm py-1.5">INVOICE</button>
+                                                class="flex-1 text-[9px] tracking-wider font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2 px-1">INVOICE</button>
                                             <button @click.stop="exportDocument(quote.originalIndex, 'itinerary')"
-                                                class="flex-1 text-[9px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm py-1.5">ITINERARY</button>
+                                                class="flex-1 text-[9px] tracking-wider font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2 px-1">ITINERARY</button>
                                         </div>
                                         <button @click.stop="deleteQuote(quote.originalIndex)"
-                                            class="text-[10px] font-bold text-red-600 bg-red-100/50 px-3 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200/50 shrink-0">✕</button>
+                                            class="text-[10px] font-bold text-red-600 bg-red-50 px-3 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200 shrink-0">✕</button>
                                     </div>
                                 </div>
                             </template>
