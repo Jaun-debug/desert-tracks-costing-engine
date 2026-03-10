@@ -908,8 +908,8 @@
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desert Tracks Estimate - ${q.clientName}</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f4f4f5; padding: 40px 20px; color: #18181b; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Open+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Open Sans', sans-serif; background-color: #f4f4f5; padding: 40px 20px; color: #18181b; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 50px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f4f4f5; padding-bottom: 30px; margin-bottom: 30px; }
         .logo-text { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: #d87a4d; margin: 0; }
@@ -920,11 +920,12 @@
         th { text-align: left; padding: 12px; background: #fafafa; color: #71717a; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
         td { padding: 12px; border-bottom: 1px solid #f4f4f5; color: #3f3f46; }
         .matrix { display: flex; gap: 20px; margin-top: 30px; }
-        .matrix-card { flex: 1; padding: 25px; border-radius: 8px; border: 1px solid #e4e4e7; background: #fafafa; }
+        .matrix-card { flex: 1; border-radius: 8px; border: 1px solid #e4e4e7; background: #ffffff; overflow: hidden; }
+        .m-section-top { padding: 30px; background: #ffffff; }
+        .m-section-bottom { padding: 30px; background: #fafafa; border-top: 1px dashed #e4e4e7; }
         .m-title { font-size: 11px; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; color: #71717a; margin-bottom: 12px; }
-        .m-val { font-size: 24px; font-weight: 800; color: #18181b; }
-        .m-sub { font-size: 20px; color: #18181b; margin-top: 15px; font-weight: 800;}
-        .m-pp { font-size: 14px; color: #52525b; margin-top: 6px; font-weight: 600; }
+        .m-val { font-size: 24px; font-weight: 800; color: #18181b; font-family: 'Open Sans', sans-serif;}
+        .m-pp { font-size: 14px; color: #52525b; margin-top: 6px; font-weight: 600; font-family: 'Open Sans', sans-serif; }
     </style>
 </head>
 <body>
@@ -970,12 +971,14 @@
         <div class="matrix">
             ${(!q.activeTab || q.activeTab === 'dt') ? `
             <div class="matrix-card">
-                <div class="m-title">Desert Tracks (25%)</div>
-                <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
-                <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
-                ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
+                <div class="m-section-top">
+                    <div class="m-title">Desert Tracks (25%)</div>
+                    <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
+                    <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
+                    ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
+                </div>
                 ${qBotsTotal > 0 ? `
-                <div style="margin-top: 25px; border-top: 1px dashed #e4e4e7; padding-top: 25px;">
+                <div class="m-section-bottom">
                     <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
                     <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
@@ -984,12 +987,14 @@
             
             ${q.activeTab === 'tl' ? `
             <div class="matrix-card">
-                <div class="m-title">Travel Local (18%)</div>
-                <div class="m-val">${format(tlTotal)} NAD Client Invoice</div>
-                <div class="m-pp">Namibian Double Sharing PP: ${format(tlNamibianDoublePP)}</div>
-                ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(tlNamibianSinglePP)}</div>` : ''}
+                <div class="m-section-top">
+                    <div class="m-title">Travel Local (18%)</div>
+                    <div class="m-val">${format(tlTotal)} NAD Client Invoice</div>
+                    <div class="m-pp">Namibian Double Sharing PP: ${format(tlNamibianDoublePP)}</div>
+                    ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(tlNamibianSinglePP)}</div>` : ''}
+                </div>
                 ${qBotsTotal > 0 ? `
-                <div style="margin-top: 25px; border-top: 1px dashed #e4e4e7; padding-top: 25px;">
+                <div class="m-section-bottom">
                     <div class="m-val">$${format(tlBotsTotal)} USD Botswana Client Invoice</div>
                     <div class="m-pp">Botswana Double Sharing PP: $${format(tlBotsDoublePP)}</div>
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(tlBotsSinglePP)}</div>` : ''}
@@ -998,13 +1003,15 @@
             
             ${q.activeTab === 'dt_agent' ? `
             <div class="matrix-card">
-                <div class="m-title">Consultant (25% Total)</div>
-                <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
-                <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
-                ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
-                <div style="font-size: 11px; color: #d87a4d; margin-top: 12px; font-weight: bold;">(Includes 20% DT & 5% Agent Override)</div>
+                <div class="m-section-top">
+                    <div class="m-title">Consultant (25% Total)</div>
+                    <div class="m-val">${format(dtTotal)} NAD Client Invoice</div>
+                    <div class="m-pp">Namibian Double Sharing PP: ${format(dtNamibianDoublePP)}</div>
+                    ${(q.singlePax || 0) > 0 ? `<div class="m-pp">Namibian Single PP: ${format(dtNamibianSinglePP)}</div>` : ''}
+                    <div style="font-size: 11px; color: #d87a4d; margin-top: 12px; font-weight: bold;">(Includes 20% DT & 5% Agent Override)</div>
+                </div>
                 ${qBotsTotal > 0 ? `
-                <div style="margin-top: 25px; border-top: 1px dashed #e4e4e7; padding-top: 25px;">
+                <div class="m-section-bottom">
                     <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
                     <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
                     ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
