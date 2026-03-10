@@ -75,58 +75,119 @@
 </head>
 
 <body class="p-4 md:p-8 min-h-screen">
-    <div id="app" v-cloak class="max-w-7xl mx-auto flex flex-col gap-6">
+    <div id="app" v-cloak class="w-full mx-auto flex flex-col gap-6">
 
-        <!-- Header & Config -->
-        <div
-            class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-200 pb-4">
-            <div>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Costing Engine</h1>
-                <p class="text-gray-500 mt-1 text-sm font-medium">Desert Tracks Premium Pricing Calculator v2</p>
+        <!-- Elegant Header Configuration -->
+        <div class="flex flex-col mb-2">
 
-                <div class="flex gap-4 mt-6 border-b border-gray-200 translate-y-[1px]">
-                    <div class="tab-btn" :class="{active: activeTab === 'dt'}" @click="activeTab='dt'">Just Desert
-                        Tracks</div>
-                    <div class="tab-btn" :class="{active: activeTab === 'tl'}" @click="activeTab='tl'">Travel Local
+            <div class="text-center mb-8">
+                <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight text-gray-900 drop-shadow-sm">Costing
+                    Engine</h1>
+                <p class="text-gray-500 mt-2 text-sm font-medium tracking-widest uppercase">Desert Tracks Premium
+                    Pricing Calculator</p>
+            </div>
+
+            <!-- Elegant Tabs Full Width -->
+            <div class="flex justify-center gap-8 md:gap-16 border-b border-gray-200 mb-8 px-4 flex-wrap">
+                <div class="pb-3 text-lg md:text-2xl font-bold cursor-pointer transition-all border-b-[3px] hover:text-gray-800"
+                    :class="activeTab === 'dt' ? 'text-dt-orange border-dt-orange' : 'text-gray-400 border-transparent'"
+                    @click="activeTab='dt'">Just<br>Desert Tracks</div>
+                <div class="pb-3 text-lg md:text-2xl font-bold cursor-pointer transition-all border-b-[3px] hover:text-gray-800"
+                    :class="activeTab === 'tl' ? 'text-dt-orange border-dt-orange' : 'text-gray-400 border-transparent'"
+                    @click="activeTab='tl'">Travel<br>Local</div>
+                <div class="pb-3 text-lg md:text-2xl font-bold cursor-pointer transition-all border-b-[3px] hover:text-gray-800"
+                    :class="activeTab === 'dt_agent' ? 'text-dt-orange border-dt-orange' : 'text-gray-400 border-transparent'"
+                    @click="activeTab='dt_agent'">Desert<br>Tracks + Agent</div>
+            </div>
+
+            <!-- Meta Data Row Settings -->
+            <div class="bg-[#fdfbf7] p-5 lg:p-6 mb-6 rounded-2xl border border-gray-200/60 shadow-sm w-full mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-[14px] border border-gray-200 shadow-sm">
+                        <label
+                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-16 leading-tight">Client
+                            Name</label>
+                        <input type="text" v-model="clientName"
+                            class="w-full font-bold text-sm bg-transparent border-0 outline-none focus:ring-0 text-gray-800 p-0"
+                            placeholder="e.g. Smith Family">
                     </div>
-                    <div class="tab-btn" :class="{active: activeTab === 'dt_agent'}" @click="activeTab='dt_agent'">
-                        Desert Tracks + Agent</div>
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-[14px] border border-gray-200 shadow-sm">
+                        <label
+                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-16 leading-tight">Agent
+                            Name</label>
+                        <input type="text" v-model="agentName"
+                            class="w-full font-bold text-sm bg-transparent border-0 outline-none focus:ring-0 text-gray-800 p-0"
+                            placeholder="e.g. Jane Doe">
+                    </div>
+                    <div
+                        class="flex items-center gap-3 bg-white p-3 rounded-[14px] border border-yellow-200 shadow-sm border-l-4 border-l-yellow-400">
+                        <label
+                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-20 leading-tight">Botswana<br>Safari
+                            <span class="text-[9px] text-gray-400 font-medium">(USD)</span></label>
+                        <div class="relative w-full">
+                            <span class="absolute left-2 top-0 text-yellow-700 font-bold">$</span>
+                            <input type="number" v-model.number="botswanaUsd"
+                                class="w-full pl-6 py-0 font-bold text-lg bg-yellow-50/50 rounded text-yellow-800 border-0 outline-none focus:ring-0"
+                                placeholder="0">
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center justify-between gap-3 bg-white p-3 rounded-[14px] border border-gray-200 shadow-sm border-l-4 border-l-gray-400">
+                        <label
+                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-20 leading-tight">Number
+                            of Pax</label>
+                        <input type="number" v-model.number="numPax"
+                            class="w-16 text-center font-bold text-xl bg-gray-50/50 py-0 border-0 outline-none focus:ring-0 rounded-md">
+                    </div>
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                    <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Client Name</label>
-                    <input type="text" v-model="clientName"
-                        class="w-40 dt-input font-bold text-sm bg-gray-50 border-gray-300"
-                        placeholder="e.g. Smith Family">
+            <!-- Saved Quotes Horizontal List -->
+            <div class="bg-gray-50/80 rounded-2xl border border-gray-200 p-4 shadow-inner mb-2 w-full">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2">
+                    <div class="flex items-center gap-2">
+                        <h4 class="font-bold text-sm uppercase text-gray-700 tracking-widest">Your Saved Quotes</h4>
+                    </div>
+                    <button @click="saveQuote" :disabled="!agentName || !clientName"
+                        class="bg-gray-800 text-white px-5 py-2 rounded-lg text-xs font-bold tracking-wide hover:bg-black transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md w-full md:w-auto">
+                        + Save Current Quote
+                    </button>
                 </div>
-                <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                    <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Agent Name</label>
-                    <input type="text" v-model="agentName"
-                        class="w-40 dt-input font-bold text-sm bg-gray-50 border-gray-300" placeholder="e.g. Jane Doe">
-                </div>
-                <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                    <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Botswana Safari (Add
-                        USD)</label>
-                    <div class="relative">
-                        <span class="absolute left-2 top-1.5 text-gray-500 font-bold">$</span>
-                        <input type="number" v-model.number="botswanaUsd"
-                            class="w-24 dt-input pl-6 font-bold text-lg bg-yellow-50/50 border-yellow-200 text-yellow-800 focus:border-yellow-400 focus:ring-yellow-400"
-                            placeholder="0">
+                <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style="scrollbar-width: none;">
+                    <div v-if="savedQuotes.length === 0"
+                        class="text-sm font-medium text-gray-400 italic py-3 text-center w-full">
+                        You have not saved any quotes yet. Fill out the configuration above and click Save.
+                    </div>
+                    <div v-for="(quote, index) in savedQuotes" :key="index"
+                        class="bg-white min-w-[280px] max-w-[280px] p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-3 shrink-0 hover:border-dt-orange/30 transition-colors">
+                        <div class="flex justify-between items-start">
+                            <div class="min-w-0 pr-2">
+                                <div class="font-extrabold text-gray-800 text-sm truncate">{{ quote.clientName }}</div>
+                                <div
+                                    class="text-[11px] text-dt-orange font-bold mt-1 uppercase tracking-wider truncate">
+                                    {{ quote.agentName }}</div>
+                            </div>
+                            <span class="text-[10px] text-gray-500 font-medium px-2 py-1 bg-gray-50 rounded shrink-0">{{
+                                new Date(quote.timestamp).toLocaleDateString() }}</span>
+                        </div>
+                        <div class="flex gap-2 mt-auto pt-2 border-t border-gray-100">
+                            <button @click="loadQuote(index)"
+                                class="flex-1 text-[10px] font-bold text-blue-700 bg-blue-50 py-1.5 rounded hover:bg-blue-100 transition shadow-sm border border-blue-100/50">LOAD</button>
+                            <button @click="downloadQuote(index)"
+                                class="flex-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 py-1.5 rounded hover:bg-emerald-100 transition shadow-sm border border-emerald-100/50">DOWNLOAD
+                                HTML</button>
+                            <button @click="deleteQuote(index)"
+                                class="text-[10px] font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded hover:bg-red-100 transition shadow-sm border border-red-100/50">✕</button>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm border border-gray-100">
-                    <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Number of PAX</label>
-                    <input type="number" v-model.number="numPax"
-                        class="w-16 dt-input text-center font-bold text-lg bg-gray-50 border-gray-300">
-                </div>
             </div>
+
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="flex flex-col gap-6">
 
-            <div class="lg:col-span-8 space-y-6">
+            <div class="w-full space-y-6">
                 <!-- Itinerary Builder -->
                 <div class="glass rounded-2xl shadow-sm border border-gray-200/60 p-5 md:p-6 overflow-hidden">
                     <div class="flex justify-between items-center mb-4">
@@ -218,8 +279,8 @@
                                         SUBTOTALS:</td>
                                     <td class="px-3 py-4 text-right">
                                         {{ format(storeTotals.group) }}<br>
-                                        <span v-if="numPax > 0"
-                                            class="text-[10px] font-medium text-gray-500 uppercase">Grp
+                                        <span v-if="numPax > 0" class="text-[10px] font-bold text-gray-500 uppercase">{{
+                                            numPax }} Pax Total:
                                             {{format(storeTotals.group * numPax)}}</span>
                                     </td>
                                     <td class="px-3 py-4 text-right">{{ format(storeTotals.single) }}</td>
@@ -325,9 +386,9 @@
                 <!-- Uploaded Pricelists Repository Removed: Moved into the Itinerary Rows. -->
             </div>
 
-            <!-- RIGHT COLUMN: FINAL INVOICING -->
-            <div class="lg:col-span-4 relative">
-                <div class="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden sticky top-6">
+            <!-- BOTTOM ROW: FINAL INVOICING -->
+            <div class="w-full relative">
+                <div class="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
 
                     <div class="bg-gray-900 text-white p-6 text-center relative overflow-hidden">
                         <div
@@ -504,41 +565,7 @@
 
                     </div>
 
-                    <!-- Saved Quotes Section -->
-                    <div class="p-6 bg-gray-100 border-t border-gray-200">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-bold text-sm uppercase text-gray-600 tracking-wider">Saved Quotes</h4>
-                            <button @click="saveQuote" :disabled="!agentName || !clientName"
-                                class="bg-gray-800 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                Save Quote
-                            </button>
-                        </div>
-                        <div class="space-y-3 max-h-60 overflow-y-auto">
-                            <!-- Group by Agent visually -->
-                            <div v-if="savedQuotes.length === 0" class="text-xs text-gray-400 italic text-center p-2">
-                                No quotes saved yet. Enter Agent & Client Name to save.
-                            </div>
-                            <div v-for="(quote, index) in savedQuotes" :key="index"
-                                class="bg-white p-3 rounded-lg shadow-sm border border-gray-200 text-sm flex justify-between items-center">
-                                <div>
-                                    <div class="font-bold text-gray-800">{{ quote.clientName }} <span
-                                            class="text-[10px] text-gray-400 font-normal ml-2">{{ new
-                                            Date(quote.timestamp).toLocaleDateString() }}</span></div>
-                                    <div class="text-xs text-dt-orange font-semibold mt-0.5">Agent: {{ quote.agentName
-                                        }}</div>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button @click="loadQuote(index)"
-                                        class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 border border-blue-100 transition">LOAD</button>
-                                    <button @click="downloadQuote(index)"
-                                        class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded hover:bg-emerald-100 border border-emerald-100 transition">⤓
-                                        HTML</button>
-                                    <button @click="deleteQuote(index)"
-                                        class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded hover:bg-red-100 border border-red-100 transition">✕</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Saved Quotes Section Moved To Top Header -->
 
                 </div>
             </div>
