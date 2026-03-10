@@ -213,11 +213,18 @@
                                             class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
                                             new Date(quote.timestamp).toLocaleDateString() }}</span>
                                     </div>
-                                    <div class="flex gap-1.5 mt-1">
+                                    <div class="flex gap-1 mt-1 mb-1">
                                         <button @click.stop="loadQuote(quote.originalIndex)"
-                                            class="flex-1 text-[9px] font-bold text-blue-700 bg-blue-100/50 py-1.5 rounded hover:bg-blue-100 transition border border-blue-200/50">LOAD</button>
-                                        <button @click.stop="downloadQuote(quote.originalIndex)"
-                                            class="flex-1 text-[9px] font-bold text-emerald-700 bg-emerald-100/50 py-1.5 rounded hover:bg-emerald-100 transition border border-emerald-200/50">HTML</button>
+                                            class="w-12 text-[9px] font-bold text-blue-700 bg-blue-100/50 py-1.5 rounded hover:bg-blue-100 transition border border-blue-200/50">LOAD</button>
+                                        <div
+                                            class="flex-1 flex gap-1 rounded bg-gray-50/50 p-0.5 border border-gray-100">
+                                            <button @click.stop="exportDocument(quote.originalIndex, 'costing')"
+                                                class="flex-1 text-[8px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm">COSTING</button>
+                                            <button @click.stop="exportDocument(quote.originalIndex, 'invoice')"
+                                                class="flex-1 text-[8px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm">INVOICE</button>
+                                            <button @click.stop="exportDocument(quote.originalIndex, 'itinerary')"
+                                                class="flex-1 text-[8px] tracking-wider font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 transition border border-emerald-300 rounded shadow-sm">ITINERARY</button>
+                                        </div>
                                         <button @click.stop="deleteQuote(quote.originalIndex)"
                                             class="text-[9px] font-bold text-red-600 bg-red-100/50 px-2.5 py-1.5 rounded hover:bg-red-100 transition border border-red-200/50">✕</button>
                                     </div>
@@ -863,7 +870,7 @@
                     this.extras = Array.isArray(quote.extras) ? quote.extras : [];
                     this.itinerary = quote.itinerary;
                 },
-                downloadQuote(index) {
+                exportDocument(index, type) {
                     const q = this.savedQuotes[index];
                     const format = (val) => Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -933,7 +940,7 @@
         <div class="header">
             <div>
                 <h1 class="logo-text">Desert Tracks</h1>
-                <div class="sub-logo">Premium Costing Estimate</div>
+                <div class="sub-logo">${type === 'costing' ? 'Premium Costing Estimate' : type === 'invoice' ? 'Client Invoice' : 'Prepared Itinerary'}</div>
             </div>
             <div class="meta-text" style="text-align: right;">
                 <strong>Date:</strong> ${new Date(q.timestamp).toLocaleDateString()}<br>
@@ -947,11 +954,12 @@
         </div>
         <h3>Itinerary Summary</h3>
         <table>
-            <tr><th style="width: 30px;">Day</th><th>Region</th><th>Lodge</th><th style="text-align: right;">Sharing PP</th><th style="text-align: right;">Single PP</th></tr>
-            ${q.itinerary.map((d, i) => `<tr><td>${i + 1}</td><td>${d.region || '-'}</td><td style="font-weight: 500;">${d.lodge || '-'}</td><td style="text-align: right;">${format(d.pp || 0)}</td><td style="text-align: right;">${format(d.single || 0)}</td></tr>`).join('')}
-            <tr><td colspan="3" style="text-align: right; font-weight: bold; padding-top: 15px;">Sub Total:</td><td style="text-align: right; font-weight: bold; padding-top: 15px; color: #d87a4d;">${format(group)}</td><td style="text-align: right; font-weight: bold; padding-top: 15px; color: #d87a4d;">${format(single)}</td></tr>
+            <tr><th style="width: 30px;">Day</th><th>Region</th><th>Lodge</th>${type === 'itinerary' ? '' : '<th style="text-align: right;">Sharing PP</th><th style="text-align: right;">Single PP</th>'}</tr>
+            ${q.itinerary.map((d, i) => `<tr><td>${i + 1}</td><td>${d.region || '-'}</td><td style="font-weight: 500;">${d.lodge || '-'}</td>${type === 'itinerary' ? '' : `<td style="text-align: right;">${format(d.pp || 0)}</td><td style="text-align: right;">${format(d.single || 0)}</td>`}</tr>`).join('')}
+            ${type === 'itinerary' ? '' : `<tr><td colspan="3" style="text-align: right; font-weight: bold; padding-top: 15px;">Sub Total:</td><td style="text-align: right; font-weight: bold; padding-top: 15px; color: #d87a4d;">${format(group)}</td><td style="text-align: right; font-weight: bold; padding-top: 15px; color: #d87a4d;">${format(single)}</td></tr>`}
         </table>
 
+        ${type === 'costing' ? `
         <h3>Cost Breakdown</h3>
         <table>
             <tr><th>Cost Component</th><th style="text-align: right;">Total (NAD)</th></tr>
@@ -964,9 +972,11 @@
             <tr><td style="color: #71717a;">Other Extras Total</td><td style="text-align: right; font-weight: 500;">${format(extTot)}</td></tr>
             ${qBotsTotal > 0 ? `<tr><td style="color: #d87a4d; font-weight: bold;">Botswana STO Base (USD)</td><td style="text-align: right; font-weight: bold; color: #d87a4d;">$${format(qBotsTotal)}</td></tr>` : ''}
         </table>
+        ` : ''}
 
 
 
+        ${type !== 'itinerary' ? `
         <h3>Pricing Summary</h3>
         <div class="matrix">
             ${(!q.activeTab || q.activeTab === 'dt') ? `
@@ -1021,6 +1031,7 @@
                 </div>` : ''}
             </div>` : ''}
         </div>
+        ` : ''}
         <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #a1a1aa;">Generated by Desert Tracks Costing Engine</div>
     </div>
 </body>
@@ -1029,7 +1040,7 @@
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `DT_Quote_${q.clientName.replace(/\s+/g, '_')}.html`;
+                    a.download = `DT_${type.charAt(0).toUpperCase() + type.slice(1)}_${q.clientName.replace(/\s+/g, '_')}.html`;
                     a.click();
                     URL.revokeObjectURL(url);
                 },
