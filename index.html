@@ -239,8 +239,22 @@
                                     <th class="px-3 py-3 w-8">#</th>
                                     <th class="px-3 py-3 w-40 text-center">Region & Lodge</th>
                                     <th class="px-3 py-3 w-[100px] text-center">Pricelist</th>
-                                    <th class="px-3 py-3 text-right">Per Person</th>
-                                    <th class="px-3 py-3 text-right">Single Total</th>
+                                    <th class="px-3 py-3 text-right">Double PP
+                                        <div class="inline-flex items-center ml-1 relative top-[1px]">
+                                            <input type="number" v-model.number="doublePax"
+                                                class="w-8 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
+                                                :class="isPaxValid ? 'border-gray-300' : 'border-red-500 bg-red-50'"
+                                                title="Double Pax">
+                                        </div>
+                                    </th>
+                                    <th class="px-3 py-3 text-right">Single PP
+                                        <div class="inline-flex items-center ml-1 relative top-[1px]">
+                                            <input type="number" v-model.number="singlePax"
+                                                class="w-8 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
+                                                :class="isPaxValid ? 'border-gray-300' : 'border-red-500 bg-red-50'"
+                                                title="Single Pax">
+                                        </div>
+                                    </th>
                                     <th class="px-3 py-3 text-right">Vehicle</th>
                                     <th class="px-3 py-3 text-right">Guide Fee</th>
                                     <th class="px-3 py-3 text-right">Guide Acc.</th>
@@ -312,11 +326,18 @@
                                         SUBTOTALS:</td>
                                     <td class="px-3 py-4 text-right">
                                         {{ format(storeTotals.group) }}<br>
-                                        <span v-if="numPax > 0" class="text-[10px] font-bold text-gray-500 uppercase">{{
-                                            numPax }} Pax Total:
-                                            {{format(storeTotals.group * numPax)}}</span>
+                                        <span v-if="doublePax > 0"
+                                            class="text-[10px] font-bold text-gray-500 uppercase">{{
+                                            doublePax }} Pax Total:
+                                            {{format(storeTotals.group * doublePax)}}</span>
                                     </td>
-                                    <td class="px-3 py-4 text-right">{{ format(storeTotals.single) }}</td>
+                                    <td class="px-3 py-4 text-right">
+                                        {{ format(storeTotals.single) }}<br>
+                                        <span v-if="singlePax > 0"
+                                            class="text-[10px] font-bold text-gray-500 uppercase">{{
+                                            singlePax }} Pax Total:
+                                            {{format(storeTotals.single * singlePax)}}</span>
+                                    </td>
                                     <td class="px-3 py-4 text-right">{{ format(storeTotals.vehicle) }}</td>
                                     <td class="px-3 py-4 text-right">{{ format(storeTotals.guideFee) }}</td>
                                     <td class="px-3 py-4 text-right">{{ format(storeTotals.guideAcc) }}</td>
@@ -436,11 +457,12 @@
 
                     <div class="p-5 space-y-3 text-[13px] bg-gray-50/50">
                         <div class="flex justify-between border-b border-dashed border-gray-200 pb-2"><span
-                                class="text-gray-500 font-medium">Double Group ({{numPax}}x)</span><span
-                                class="font-bold text-gray-800">{{ format(storeTotals.group * numPax) }}</span></div>
+                                class="text-gray-500 font-medium">Double Group ({{doublePax}}x)</span><span
+                                class="font-bold text-gray-800">{{ format(storeTotals.group * doublePax) }}</span></div>
                         <div class="flex justify-between border-b border-dashed border-gray-200 pb-2"><span
-                                class="text-gray-500 font-medium">Single Total</span><span
-                                class="font-bold text-gray-800">{{ format(storeTotals.single) }}</span></div>
+                                class="text-gray-500 font-medium">Single Group ({{singlePax}}x)</span><span
+                                class="font-bold text-gray-800">{{ format(storeTotals.single * singlePax) }}</span>
+                        </div>
                         <div class="flex justify-between border-b border-dashed border-gray-200 pb-2"><span
                                 class="text-gray-500 font-medium">Vehicle Hire</span><span
                                 class="font-bold text-gray-800">{{ format(storeTotals.vehicle) }}</span></div>
@@ -637,6 +659,8 @@
                     adminPasswords: {},
                     regions: regionsDb,
                     numPax: 2,
+                    doublePax: 2,
+                    singlePax: 0,
                     botswanaUsd: 0,
                     fuelDistance: 2000,
                     fuelType: 'low',
@@ -650,11 +674,15 @@
                 }
             },
             computed: {
+                isPaxValid() {
+                    return (this.doublePax + this.singlePax) === this.numPax;
+                },
                 canSave() {
                     return this.agentName.trim() !== '' &&
                         this.clientName.trim() !== '' &&
                         this.itinerary.length > 0 &&
-                        this.itinerary[0].lodge.trim() !== '';
+                        this.itinerary[0].lodge.trim() !== '' &&
+                        this.isPaxValid;
                 },
                 groupedQuotes() {
                     return this.savedQuotes.reduce((acc, quote, index) => {
@@ -689,8 +717,9 @@
                 stoTotal() {
                     const t = this.storeTotals;
                     let total = 0;
-                    total += (t.group * Math.max(1, this.numPax));
-                    total += t.single + t.vehicle + t.guideFee + t.guideAcc;
+                    total += (t.group * Math.max(0, this.doublePax));
+                    total += (t.single * Math.max(0, this.singlePax));
+                    total += t.vehicle + t.guideFee + t.guideAcc;
                     total += this.calculatedFuel + this.extrasTotal;
                     total += this.activitiesTotal;
                     // Note: botswanaUsd is NOT added here anymore to keep it unmixed.
@@ -731,6 +760,8 @@
                         clientName: this.clientName,
                         agentName: this.agentName,
                         numPax: this.numPax,
+                        doublePax: this.doublePax,
+                        singlePax: this.singlePax,
                         botswanaUsd: this.botswanaUsd,
                         fuelDistance: this.fuelDistance,
                         fuelType: this.fuelType,
@@ -749,6 +780,8 @@
                     this.clientName = quote.clientName;
                     this.agentName = quote.agentName;
                     this.numPax = quote.numPax;
+                    this.doublePax = quote.doublePax !== undefined ? quote.doublePax : quote.numPax;
+                    this.singlePax = quote.singlePax !== undefined ? quote.singlePax : 0;
                     this.botswanaUsd = quote.botswanaUsd;
                     this.fuelDistance = quote.fuelDistance;
                     this.fuelType = quote.fuelType;
