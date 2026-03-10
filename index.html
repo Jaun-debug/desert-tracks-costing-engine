@@ -190,24 +190,27 @@
                             </div>
 
                             <!-- Quote Cards -->
-                            <div v-else v-for="quote in quotes" :key="quote.originalIndex"
-                                class="bg-gray-50 p-3 rounded-lg border border-gray-100 flex flex-col gap-2 hover:border-dt-orange/30 transition-colors">
-                                <div class="flex justify-between items-start">
-                                    <div class="font-bold text-gray-800 text-sm truncate pr-2">{{ quote.clientName }}
+                            <template v-else>
+                                <div v-for="quote in quotes" :key="quote.originalIndex"
+                                    class="bg-gray-50 p-3 rounded-lg border border-gray-100 flex flex-col gap-2 hover:border-dt-orange/30 transition-colors">
+                                    <div class="flex justify-between items-start">
+                                        <div class="font-bold text-gray-800 text-sm truncate pr-2">{{ quote.clientName
+                                            }}
+                                        </div>
+                                        <span
+                                            class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
+                                            new Date(quote.timestamp).toLocaleDateString() }}</span>
                                     </div>
-                                    <span
-                                        class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
-                                        new Date(quote.timestamp).toLocaleDateString() }}</span>
+                                    <div class="flex gap-1.5 mt-1">
+                                        <button @click.stop="loadQuote(quote.originalIndex)"
+                                            class="flex-1 text-[9px] font-bold text-blue-700 bg-blue-100/50 py-1.5 rounded hover:bg-blue-100 transition border border-blue-200/50">LOAD</button>
+                                        <button @click.stop="downloadQuote(quote.originalIndex)"
+                                            class="flex-1 text-[9px] font-bold text-emerald-700 bg-emerald-100/50 py-1.5 rounded hover:bg-emerald-100 transition border border-emerald-200/50">HTML</button>
+                                        <button @click.stop="deleteQuote(quote.originalIndex)"
+                                            class="text-[9px] font-bold text-red-600 bg-red-100/50 px-2.5 py-1.5 rounded hover:bg-red-100 transition border border-red-200/50">✕</button>
+                                    </div>
                                 </div>
-                                <div class="flex gap-1.5 mt-1">
-                                    <button @click.stop="loadQuote(quote.originalIndex)"
-                                        class="flex-1 text-[9px] font-bold text-blue-700 bg-blue-100/50 py-1.5 rounded hover:bg-blue-100 transition border border-blue-200/50">LOAD</button>
-                                    <button @click.stop="downloadQuote(quote.originalIndex)"
-                                        class="flex-1 text-[9px] font-bold text-emerald-700 bg-emerald-100/50 py-1.5 rounded hover:bg-emerald-100 transition border border-emerald-200/50">HTML</button>
-                                    <button @click.stop="deleteQuote(quote.originalIndex)"
-                                        class="text-[9px] font-bold text-red-600 bg-red-100/50 px-2.5 py-1.5 rounded hover:bg-red-100 transition border border-red-200/50">✕</button>
-                                </div>
-                            </div>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -715,10 +718,10 @@
                     this.currentPdfUrl = url;
                 },
                 unlockAgent(agent) {
-                    if (this.adminPasswords[agent] === 'dtadmin') {
+                    if (this.adminPasswords[agent] === 'passme9cops') {
                         this.unlockedAgents.push(agent);
                     } else {
-                        alert('Incorrect password for ' + agent);
+                        alert('Incorrect password for admin access');
                     }
                 },
                 saveQuote() {
