@@ -907,6 +907,12 @@
                     const tlBotsDoublePP = dtBotsDoublePP / 0.82;
                     const tlBotsSinglePP = dtBotsSinglePP / 0.82;
 
+                    const finalTotalNAD = (!q.activeTab || q.activeTab === 'dt' || q.activeTab === 'dt_agent') ? dtTotal : tlTotal;
+                    const finalTotalUSD = (!q.activeTab || q.activeTab === 'dt' || q.activeTab === 'dt_agent') ? dtBotsTotal : tlBotsTotal;
+
+                    const exclAmountNAD = finalTotalNAD / 1.15;
+                    const vatAmountNAD = finalTotalNAD - exclAmountNAD;
+
                     let html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -956,17 +962,17 @@
             <div style="width: 320px;">
                 <h2 style="font-family: 'Open Sans', sans-serif; font-size: 20px; font-weight: 700; margin-top: 0; text-align: right; color: #18181b;">Pro Forma INVOICE</h2>
                 <div style="font-size: 11px; margin-top: 20px; display: grid; grid-template-columns: 120px 1fr; gap: 8px;">
-                    <div style="color: #71717a;">Invoice No.</div><div style="text-align: right; font-weight: 700;">_________________</div>
+                    <div style="color: #71717a;">Invoice No.</div><div style="text-align: right; font-weight: 700;"><span contenteditable="true" style="min-width: 120px; display: inline-block; border-bottom: 1px solid #18181b; outline: none;"></span></div>
                     <div style="color: #71717a;">Invoice Date:</div><div style="text-align: right; font-weight: 700;">${new Date(Number(q.timestamp) || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                     <div style="color: #71717a;">Client Ref:</div><div style="text-align: right; font-weight: 700;">DT-${(q.timestamp || Date.now()).toString().slice(-6)}</div>
                 </div>
                 <div style="font-size: 11px; margin-top: 20px; line-height: 1.6; display: flex; flex-direction: column;">
                     <strong style="font-size: 12px; margin-bottom: 5px;">CLIENT DETAILS</strong>
                     <div style="display: grid; grid-template-columns: 70px 1fr; gap: 8px;">
-                        <span style="color: #71717a;">Name:</span><strong style="text-align: right;">${q.clientName}</strong>
-                        <span style="color: #71717a;">Address:</span><span style="text-align: right;">_____________________</span>
-                        <span style="color: #71717a;"></span><span style="text-align: right;">_____________________</span>
-                        <span style="color: #71717a;">Contact:</span><span style="text-align: right;">_____________________</span>
+                        <span style="color: #71717a;">Name:</span><strong style="text-align: right;" contenteditable="true" style="outline: none;">${q.clientName}</strong>
+                        <span style="color: #71717a;">Address:</span><div style="text-align: right;"><span contenteditable="true" style="min-width: 140px; display: inline-block; border-bottom: 1px solid #18181b; outline: none;"></span></div>
+                        <span style="color: #71717a;"></span><div style="text-align: right;"><span contenteditable="true" style="min-width: 140px; display: inline-block; border-bottom: 1px solid #18181b; outline: none;"></span></div>
+                        <span style="color: #71717a;">Contact:</span><div style="text-align: right;"><span contenteditable="true" style="min-width: 140px; display: inline-block; border-bottom: 1px solid #18181b; outline: none;"></span></div>
                     </div>
                 </div>
             </div>
@@ -988,6 +994,64 @@
             <div style="font-size: 20px; font-weight: 600; color: #27272a; margin-top: 4px;">${q.clientName} (${q.numPax} PAX)</div>
         </div>
         `}
+        `}
+
+        ${ type === 'invoice' ? `
+        <div style="border: 2px solid #18181b; margin-top: 30px;">
+            <h3 style="text-align: center; margin: 15px 0 10px 0; font-family: 'Open Sans', sans-serif; font-size: 16px; font-weight: 700; border-bottom: none;">${q.itinerary.length} - Day Namibia Safari</h3>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 0;">
+                <tr style="background-color: #e3d299;">
+                    <th style="padding: 10px 15px; color: #000; font-size: 12px; border-top: 1px solid #18181b; border-bottom: 1px solid #18181b;">Description</th>
+                    <th style="padding: 10px 15px; color: #000; font-size: 12px; border-top: 1px solid #18181b; border-bottom: 1px solid #18181b; text-align: center; border-left: 1px solid #18181b;">Pax</th>
+                    <th style="padding: 10px 15px; color: #000; font-size: 12px; border-top: 1px solid #18181b; border-bottom: 1px solid #18181b; text-align: center; border-left: 1px solid #18181b;">Total</th>
+                    <th style="padding: 10px 15px; color: #000; font-size: 12px; border-top: 1px solid #18181b; border-bottom: 1px solid #18181b; text-align: right; border-left: 1px solid #18181b;">Amount</th>
+                </tr>
+                <tr style="background-color: #f4f4f5;">
+                    <td style="padding: 15px; vertical-align: top;">
+                        <div style="font-weight: 600; font-size: 13px;">Namibia Safari</div>
+                        <div contenteditable="true" style="margin-top: 15px; min-height: 40px; outline: none; border: 1px dashed #ccc; padding: 10px; font-size: 12px; color: #52525b; max-width: 300px; background: white;">Click to add notes...</div>
+                        <div style="margin-top: 80px; font-size: 12px; color: #18181b; padding-bottom: 20px;">Travel Date: <span contenteditable="true" style="border-bottom: 1px solid #18181b; min-width: 140px; display: inline-block;"></span></div>
+                    </td>
+                    <td style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b;">${q.numPax}</td>
+                    <td style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b;">NAD ${format(finalTotalNAD / Math.max(1, q.numPax))}</td>
+                    <td style="padding: 15px; text-align: right; vertical-align: top; border-left: 1px solid #18181b;">NAD ${format(finalTotalNAD)}</td>
+                </tr>
+                ${finalTotalUSD > 0 ? `
+                <tr style="background-color: #e5e5e5;">
+                    <td style="padding: 15px; vertical-align: top; border-top: 1px solid #d87a4d;">
+                        <div style="font-weight: 600; font-size: 13px;">Botswana Safari (USD)</div>
+                    </td>
+                    <td style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b; border-top: 1px solid #d87a4d;">${q.numPax}</td>
+                    <td style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b; border-top: 1px solid #d87a4d;">$${format(finalTotalUSD / Math.max(1, q.numPax))}</td>
+                    <td style="padding: 15px; text-align: right; vertical-align: top; border-left: 1px solid #18181b; border-top: 1px solid #d87a4d;">$${format(finalTotalUSD)}</td>
+                </tr>
+                ` : ''}
+                <tr>
+                    <td colspan="2" style="border-top: 2px solid #d87a4d;"></td>
+                    <td style="border-top: 2px solid #d87a4d; padding: 8px 15px; text-align: right; font-size: 12px; border-left: 2px solid #18181b;">Subtotal</td>
+                    <td style="border-top: 2px solid #d87a4d; padding: 8px 15px; text-align: right; font-weight: 700; font-size: 12px; border-left: 1px solid #18181b;">NAD ${format(finalTotalNAD)}</td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td style="padding: 8px 15px; text-align: right; font-size: 12px; border-left: 2px solid #18181b;">Total Vat</td>
+                    <td style="padding: 8px 15px; text-align: right; font-weight: 700; font-size: 12px; border-left: 1px solid #18181b;">NAD ${format(vatAmountNAD)}</td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                    <td style="padding: 8px 15px; text-align: right; font-weight: 700; font-size: 12px; border-left: 2px solid #18181b;">Total exclusive</td>
+                    <td style="padding: 8px 15px; text-align: right; font-weight: 700; font-size: 12px; border-left: 1px solid #18181b;">NAD ${format(exclAmountNAD)}</td>
+                </tr>
+                <tr style="background-color: #e3d299;">
+                    <td colspan="2" style="border-bottom: 2px solid #18181b;"></td>
+                    <td style="padding: 12px 15px; text-align: right; font-weight: 700; font-size: 13px; border-top: 1px solid #18181b; border-bottom: 2px solid #18181b; border-left: 2px solid #18181b;">TOTAL</td>
+                    <td style="padding: 12px 15px; text-align: right; font-weight: 700; font-size: 13px; border-top: 1px solid #18181b; border-bottom: 2px solid #18181b; border-left: 1px solid #18181b;">NAD ${format(finalTotalNAD)}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="background-color: #f4f4f5; text-align: center; padding: 15px; font-weight: 600; font-size: 14px;">Thank you - Your business is appreciated!</td>
+                </tr>
+            </table>
+        </div>
+        ` : `
         <h3>Itinerary Summary</h3>
         <table>
             <tr><th style="width: 30px;">Day</th><th>Region</th><th>Lodge</th>${type === 'itinerary' ? '' : '<th style="text-align: right;">Sharing PP</th><th style="text-align: right;">Single PP</th>'}</tr>
@@ -1067,10 +1131,11 @@
                 </div>` : ''}
             </div>` : ''}
         </div>
+        `}
         ` : ''}
 
-        <!-- Invoice Footers -->
-        ${type === 'invoice' ? `
+        < !--Invoice Footers-- >
+        ${ type === 'invoice' ? `
         <div style="margin-top: 40px; padding: 20px; background: #fdfbf7; border: 1px solid #e4e4e7; border-radius: 8px; text-align: center;">
             <div style="font-weight: 600; font-size: 14px;">Thank you - Your business is appreciated!</div>
         </div>
@@ -1087,15 +1152,15 @@
             </div>
         </div>
         ` : ''}
-        <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #a1a1aa;">Generated by Desert Tracks Costing Engine</div>
-    </div>
-</body>
-</html>`;
+            <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #a1a1aa;">Generated by Desert Tracks Costing Engine</div>
+    </div >
+</body >
+</html >\`;
                     const blob = new Blob([html], { type: 'text/html' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `DT_${type.charAt(0).toUpperCase() + type.slice(1)}_${q.clientName.replace(/\s+/g, '_')}.html`;
+                    a.download = \`DT_\${ type.charAt(0).toUpperCase() + type.slice(1) }_\${ q.clientName.replace(/\\s+/g, '_') }.html\`;
                     a.click();
                     URL.revokeObjectURL(url);
                 },
