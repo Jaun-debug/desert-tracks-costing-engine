@@ -473,10 +473,16 @@
 
                 <!-- Botswana Block Moved Above -->
                 <div
-                    class="flex flex-col gap-3 bg-white p-5 rounded-2xl border border-yellow-200 shadow-sm border-l-8 border-l-yellow-400 max-w-lg">
+                    class="flex flex-col gap-3 bg-white p-5 rounded-2xl border border-yellow-200 shadow-sm border-l-8 border-l-yellow-400">
                     <label
-                        class="text-sm font-extrabold text-gray-800 uppercase tracking-widest w-full leading-tight mb-1">
-                        Botswana Safari <span class="text-[10px] text-gray-400 font-bold">(USD)</span>
+                        class="text-sm font-extrabold text-gray-800 uppercase tracking-widest w-full leading-tight mb-1 flex items-center justify-between">
+                        <div>Botswana Safari <span class="text-[10px] text-gray-400 font-bold">(USD)</span></div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Supplier:</span>
+                            <input type="text" v-model="botswanaSupplier"
+                                class="w-48 font-bold text-[11px] bg-yellow-50/50 border border-yellow-100 rounded outline-none focus:ring-1 focus:ring-yellow-400 text-yellow-800 px-2 py-1 placeholder-yellow-600/50"
+                                placeholder="e.g. Under One Botswana...">
+                        </div>
                     </label>
                     <div class="flex gap-4">
                         <div class="relative w-full">
@@ -757,6 +763,7 @@
                     quoteLabel: '',
                     agentName: '',
                     expandedAgent: null,
+                    botswanaSupplier: '',
                     savedQuotes: JSON.parse(localStorage.getItem('dtSavedQuotes') || '[]'),
                     unlockedAgents: [],
                     adminPasswords: {},
@@ -895,6 +902,7 @@
                         clientName: this.clientName,
                         quoteLabel: this.quoteLabel,
                         agentName: this.agentName,
+                        botswanaSupplier: this.botswanaSupplier,
                         numPax: this.numPax,
                         doublePax: this.doublePax,
                         singlePax: this.singlePax,
@@ -917,6 +925,7 @@
                     this.clientName = quote.clientName;
                     this.quoteLabel = quote.quoteLabel || '';
                     this.agentName = quote.agentName;
+                    this.botswanaSupplier = quote.botswanaSupplier || '';
                     this.numPax = quote.numPax;
                     this.doublePax = quote.doublePax !== undefined ? quote.doublePax : quote.numPax;
                     this.singlePax = quote.singlePax !== undefined ? quote.singlePax : 0;
@@ -1100,7 +1109,7 @@
                 ${finalTotalUSD > 0 ? `
                 <tr style="background-color: #e5e5e5;">
                     <td style="padding: 15px; vertical-align: top; border-top: 1px solid #d87a4d;">
-                        <div style="font-weight: 600; font-size: 13px;">Botswana Safari (USD)</div>
+                        <div style="font-weight: 600; font-size: 13px;">${q.botswanaSupplier || 'Botswana Safari'} (USD)</div>
                     </td>
                     <td contenteditable="true" style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b; border-top: 1px solid #d87a4d;">${q.numPax}</td>
                     <td contenteditable="true" style="padding: 15px; text-align: center; vertical-align: top; border-left: 1px solid #18181b; border-top: 1px solid #d87a4d;">$${format(finalTotalUSD / Math.max(1, q.numPax))}</td>
@@ -1282,7 +1291,7 @@
             </div>
             ${qBotsTotal > 0 ? `
             <div class="m-section-bottom">
-                <div class="m-title" style="color: #d87a4d;">Botswana</div>
+                <div class="m-title" style="color: #d87a4d;">${q.botswanaSupplier || 'Botswana'}</div>
                 <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
                 <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
                 ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
@@ -1300,7 +1309,7 @@
             </div>
             ${qBotsTotal > 0 ? `
             <div class="m-section-bottom">
-                <div class="m-title" style="color: #d87a4d;">Botswana</div>
+                <div class="m-title" style="color: #d87a4d;">${q.botswanaSupplier || 'Botswana'}</div>
                 <div class="m-val">$${format(tlBotsTotal)} USD Botswana Client Invoice</div>
                 <div class="m-pp">Botswana Double Sharing PP: $${format(tlBotsDoublePP)}</div>
                 ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(tlBotsSinglePP)}</div>` : ''}
@@ -1320,7 +1329,7 @@
             </div>
             ${qBotsTotal > 0 ? `
             <div class="m-section-bottom">
-                <div class="m-title" style="color: #d87a4d;">Botswana</div>
+                <div class="m-title" style="color: #d87a4d;">${q.botswanaSupplier || 'Botswana'}</div>
                 <div class="m-val">$${format(dtBotsTotal)} USD Botswana Client Invoice</div>
                 <div class="m-pp">Botswana Double Sharing PP: $${format(dtBotsDoublePP)}</div>
                 ${(qBotsSinglePP > 0) ? `<div class="m-pp">Botswana Single PP: $${format(dtBotsSinglePP)}</div>` : ''}
