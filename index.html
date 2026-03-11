@@ -187,8 +187,9 @@
                             <span class="text-xs font-bold bg-dt-orange text-white px-2 py-1 rounded shadow-sm">{{ agent
                                 || 'Unnamed Agent' }}</span>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] text-gray-400 font-bold uppercase">{{ quotes.length }}
-                                    Quote(s)</span>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase">{{
+                                    Object.keys(quotes).length }}
+                                    Client(s)</span>
                                 <span class="text-gray-400 transform transition-transform"
                                     :class="expandedAgent === agent ? 'rotate-180' : ''">▼</span>
                             </div>
@@ -209,26 +210,45 @@
                                 </div>
                             </div>
 
-                            <!-- Quote Cards -->
+                            <!-- Quote Cards Grouped By Client -->
                             <template v-else>
-                                <div v-for="quote in quotes" :key="quote.originalIndex"
+                                <div v-for="(clientQuotes, clientName) in quotes" :key="clientName"
                                     class="bg-gray-50 p-3 rounded-lg border border-gray-100 flex flex-col gap-2 hover:border-dt-orange/30 hover:shadow-md cursor-pointer transition-all hover:-translate-y-0.5"
-                                    @click.stop="loadQuote(quote.originalIndex)">
-                                    <div class="flex justify-between items-start">
-                                        <div class="font-bold text-gray-800 text-sm truncate pr-2">{{ quote.clientName
-                                            }}
+                                    @click.stop="loadQuote(clientQuotes[0].originalIndex)">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <div class="font-bold text-gray-800 text-sm truncate pr-2">{{ clientName }}
                                         </div>
                                         <span
-                                            class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">{{
-                                            new Date(quote.timestamp).toLocaleDateString() }}</span>
+                                            class="text-[9px] text-gray-500 font-medium px-1.5 py-0.5 bg-white border border-gray-200 rounded shrink-0">
+                                            {{ clientQuotes.length }} Version{{ clientQuotes.length > 1 ? 's' : '' }}
+                                        </span>
                                     </div>
-                                    <div class="flex gap-4 mt-3 mb-2 items-stretch">
-                                        <div class="flex-1 flex gap-3">
-                                            <button @click.stop="exportDocument(quote.originalIndex, 'costing')"
-                                                class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">COSTING</button>
 
+                                    <div class="bg-white rounded border border-gray-200 overflow-hidden mb-2"
+                                        @click.stop v-if="clientQuotes.length > 1">
+                                        <select
+                                            class="w-full text-[10px] font-bold text-gray-600 p-1.5 outline-none bg-transparent"
+                                            v-model="clientQuotes.selectedQuoteIndex"
+                                            @change="loadQuote(clientQuotes.selectedQuoteIndex)">
+                                            <option v-for="(q, idx) in clientQuotes" :key="q.originalIndex"
+                                                :value="q.originalIndex">
+                                                Quote v{{ clientQuotes.length - idx }} ({{ new
+                                                Date(q.timestamp).toLocaleString() }})
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="text-[10px] text-gray-500 mb-1" v-else>
+                                        Created: {{ new Date(clientQuotes[0].timestamp).toLocaleString() }}
+                                    </div>
+
+                                    <div class="flex gap-4 items-stretch">
+                                        <div class="flex-1 flex gap-3">
+                                            <button
+                                                @click.stop="exportDocument(clientQuotes.selectedQuoteIndex ?? clientQuotes[0].originalIndex, 'costing')"
+                                                class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">COSTING</button>
                                         </div>
-                                        <button @click.stop="deleteQuote(quote.originalIndex)"
+                                        <button
+                                            @click.stop="deleteQuote(clientQuotes.selectedQuoteIndex ?? clientQuotes[0].originalIndex)"
                                             class="text-[11px] font-bold text-red-600 bg-red-50 px-4 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200 shrink-0">✕</button>
                                     </div>
                                 </div>
@@ -759,8 +779,12 @@
                 groupedQuotes() {
                     return this.savedQuotes.reduce((acc, quote, index) => {
                         const agent = (quote.agentName || 'Unknown').trim();
-                        if (!acc[agent]) acc[agent] = [];
-                        acc[agent].push({ ...quote, originalIndex: index });
+                        if (!acc[agent]) acc[agent] = {};
+
+                        const client = (quote.clientName || 'Unnamed').trim();
+                        if (!acc[agent][client]) acc[agent][client] = [];
+
+                        acc[agent][client].push({ ...quote, originalIndex: index });
                         return acc;
                     }, {});
                 },
