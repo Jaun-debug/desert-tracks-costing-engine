@@ -102,7 +102,7 @@
                     @click="activeTab='dt'">Desert Tracks</div>
                 <div class="pb-3 text-lg md:text-2xl font-bold cursor-pointer transition-all border-b-[3px] hover:text-gray-800 whitespace-nowrap"
                     :class="activeTab === 'dt_agent' ? 'text-dt-orange border-dt-orange' : 'text-gray-400 border-transparent'"
-                    @click="activeTab='dt_agent'">Consultant</div>
+                    @click="activeTab='dt_agent'">Desert Tracks + Consultant</div>
                 <div class="pb-3 text-lg md:text-2xl font-bold cursor-pointer transition-all border-b-[3px] hover:text-gray-800 whitespace-nowrap"
                     :class="activeTab === 'tl' ? 'text-dt-orange border-dt-orange' : 'text-gray-400 border-transparent'"
                     @click="activeTab='tl'">Travel Local</div>
@@ -589,11 +589,8 @@
 
                                 <div class="space-y-2 text-xs mb-5 border-b border-gray-700 pb-5">
                                     <div class="flex justify-between"><span class="text-gray-400">Desert Tracks
-                                            (20%)</span><span class="text-white">{{ format(stoTotal * 0.20)
+                                            (25%)</span><span class="text-white">{{ format(stoTotal * 0.25)
                                             }}</span></div>
-                                    <div class="flex justify-between"><span class="text-gray-400">Agent
-                                            (5%)</span><span class="text-white">{{
-                                            format(stoTotal * 0.05) }}</span></div>
                                 </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-gray-300">Namibian ZAR/NAD Portion</span>
@@ -624,11 +621,8 @@
                                 <div v-if="botswanaUsdSummary > 0"
                                     class="space-y-2 text-xs my-5 border-b border-gray-700 pb-5">
                                     <div class="flex justify-between"><span class="text-gray-400">Desert Tracks
-                                            (20%)</span><span class="text-white">&#36;{{ format(botswanaUsdSummary
-                                            * 0.20) }}</span></div>
-                                    <div class="flex justify-between"><span class="text-gray-400">Agent
-                                            (5%)</span><span class="text-white">&#36;{{
-                                            format(botswanaUsdSummary * 0.05) }}</span></div>
+                                            (25%)</span><span class="text-white">&#36;{{ format(botswanaUsdSummary
+                                            * 0.25) }}</span></div>
                                 </div>
                                 <div v-if="botswanaUsdSummary > 0"
                                     class="flex justify-between text-xs mt-2 text-gray-400">
@@ -729,7 +723,8 @@
                         <!-- TAB: DT + AGENT -->
                         <div v-if="activeTab === 'dt_agent'" class="space-y-4 font-normal">
                             <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 text-white">
-                                <div class="text-[11px] font-bold text-yellow-500 uppercase mb-2">Consultant
+                                <div class="text-[11px] font-bold text-yellow-500 uppercase mb-2">Desert Tracks +
+                                    Consultant
                                 </div>
                                 <div class="text-3xl font-bold text-white mb-1">{{ format(stoTotal * 1.25) }}
                                 </div>
@@ -741,7 +736,7 @@
                                     <div class="flex justify-between"><span class="text-gray-400">Desert Tracks
                                             (20%)</span><span class="text-white">{{ format(stoTotal * 0.20) }}</span>
                                     </div>
-                                    <div class="flex justify-between"><span class="text-gray-400">Agent Override
+                                    <div class="flex justify-between"><span class="text-gray-400">Consultant
                                             (5%)</span><span class="text-white">{{ format(stoTotal *
                                             0.05) }}</span></div>
                                 </div>
@@ -777,7 +772,7 @@
                                     <div class="flex justify-between"><span class="text-gray-400">Desert Tracks
                                             (20%)</span><span class="text-white">&#36;{{ format(botswanaUsdSummary
                                             * 0.20) }}</span></div>
-                                    <div class="flex justify-between"><span class="text-gray-400">Agent Override
+                                    <div class="flex justify-between"><span class="text-gray-400">Consultant
                                             (5%)</span><span class="text-white">&#36;{{
                                             format(botswanaUsdSummary * 0.05) }}</span></div>
                                 </div>
