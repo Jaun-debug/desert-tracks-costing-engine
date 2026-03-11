@@ -310,7 +310,7 @@
                                     <th class="px-3 py-3 w-[70px] text-center">Nights</th>
                                     <th class="px-3 py-3 w-40 text-center">Region & Lodge</th>
                                     <th class="px-3 py-3 w-[100px] text-center">Pricelist</th>
-                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Double PP
+                                    <th class="px-3 py-3 w-[160px] min-w-[160px] text-right">Double PP
                                         <div class="inline-flex items-center ml-1 relative top-[1px]">
                                             <input type="number" v-model.number="doublePax" step="2" min="0"
                                                 class="w-10 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
@@ -318,7 +318,7 @@
                                                 title="Double Pax (Multiples of 2)">
                                         </div>
                                     </th>
-                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Single PP
+                                    <th class="px-3 py-3 w-[160px] min-w-[160px] text-right">Single PP
                                         <div class="inline-flex items-center ml-1 relative top-[1px]">
                                             <input type="number" v-model.number="singlePax"
                                                 class="w-10 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
@@ -326,9 +326,9 @@
                                                 title="Single Pax">
                                         </div>
                                     </th>
-                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Vehicle</th>
-                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Guide Fee</th>
-                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Guide Acc.</th>
+                                    <th class="px-3 py-3 w-[160px] min-w-[160px] text-right">Vehicle</th>
+                                    <th class="px-3 py-3 w-[160px] min-w-[160px] text-right">Guide Fee</th>
+                                    <th class="px-3 py-3 w-[160px] min-w-[160px] text-right">Guide Acc.</th>
                                     <th class="px-2 py-3"></th>
                                 </tr>
                             </thead>
@@ -1539,22 +1539,13 @@
 
 </html>`;
 
-                    if (type === 'invoice') {
-                        const newWin = window.open('', '_blank');
-                        if (newWin) {
-                            newWin.document.write(html);
-                            newWin.document.close();
-                        } else {
-                            alert("Please enable popups so the editable invoice can open in a new tab.");
-                        }
+                    const newWin = window.open('', '_blank');
+                    if (newWin) {
+                        newWin.document.write(html);
+                        newWin.document.close();
+                        newWin.document.title = `DT_${type.charAt(0).toUpperCase() + type.slice(1)}_${q.clientName.replace(/\s+/g, '_')}`;
                     } else {
-                        const blob = new Blob([html], { type: 'text/html' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `DT_${type.charAt(0).toUpperCase() + type.slice(1)}_${q.clientName.replace(/\s+/g, '_')}.html`;
-                        a.click();
-                        URL.revokeObjectURL(url);
+                        alert("Please enable popups so the document can open in a new tab.");
                     }
                 },
                 deleteQuote(index) {
