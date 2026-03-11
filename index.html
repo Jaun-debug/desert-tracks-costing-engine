@@ -310,7 +310,7 @@
                                     <th class="px-3 py-3 w-[70px] text-center">Nights</th>
                                     <th class="px-3 py-3 w-40 text-center">Region & Lodge</th>
                                     <th class="px-3 py-3 w-[100px] text-center">Pricelist</th>
-                                    <th class="px-3 py-3 w-[90px] text-right">Double PP
+                                    <th class="px-3 py-3 w-[110px] text-right">Double PP
                                         <div class="inline-flex items-center ml-1 relative top-[1px]">
                                             <input type="number" v-model.number="doublePax" step="2" min="0"
                                                 class="w-8 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
@@ -318,7 +318,7 @@
                                                 title="Double Pax (Multiples of 2)">
                                         </div>
                                     </th>
-                                    <th class="px-3 py-3 w-[90px] text-right">Single PP
+                                    <th class="px-3 py-3 w-[110px] text-right">Single PP
                                         <div class="inline-flex items-center ml-1 relative top-[1px]">
                                             <input type="number" v-model.number="singlePax"
                                                 class="w-8 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
@@ -326,9 +326,9 @@
                                                 title="Single Pax">
                                         </div>
                                     </th>
-                                    <th class="px-3 py-3 w-[90px] text-right">Vehicle</th>
-                                    <th class="px-3 py-3 w-[90px] text-right">Guide Fee</th>
-                                    <th class="px-3 py-3 w-[90px] text-right">Guide Acc.</th>
+                                    <th class="px-3 py-3 w-[110px] text-right">Vehicle</th>
+                                    <th class="px-3 py-3 w-[110px] text-right">Guide Fee</th>
+                                    <th class="px-3 py-3 w-[110px] text-right">Guide Acc.</th>
                                     <th class="px-2 py-3"></th>
                                 </tr>
                             </thead>
@@ -918,11 +918,21 @@
                 },
                 groupedQuotes() {
                     return this.savedQuotes.reduce((acc, quote, index) => {
-                        const agent = (quote.agentName || 'Unknown').trim();
-                        if (!acc[agent]) acc[agent] = {};
+                        const rawAgent = (quote.agentName || 'Unknown').trim();
+                        // Find existing agent key case-insensitively to combine "jaun" and "JAUN"
+                        let agent = Object.keys(acc).find(k => k.toLowerCase() === rawAgent.toLowerCase());
+                        if (!agent) {
+                            agent = rawAgent.toUpperCase(); // Normalize new visually cleanly
+                            acc[agent] = {};
+                        }
 
-                        const client = (quote.clientName || 'Unnamed').trim();
-                        if (!acc[agent][client]) acc[agent][client] = [];
+                        const rawClient = (quote.clientName || 'Unnamed').trim();
+                        // Also merge clients case-insensitively
+                        let client = Object.keys(acc[agent]).find(k => k.toLowerCase() === rawClient.toLowerCase());
+                        if (!client) {
+                            client = rawClient;
+                            acc[agent][client] = [];
+                        }
 
                         acc[agent][client].push({ ...quote, originalIndex: index });
                         return acc;
