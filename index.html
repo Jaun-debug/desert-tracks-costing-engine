@@ -226,24 +226,7 @@
                                         <div class="flex-1 flex gap-3">
                                             <button @click.stop="exportDocument(quote.originalIndex, 'costing')"
                                                 class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">COSTING</button>
-                                            <div class="flex-1 flex flex-col relative group" style="min-width: 0;">
-                                                <button @click.stop="exportDocument(quote.originalIndex, 'invoice')"
-                                                    class="w-full h-full text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2 relative z-10 group-hover:border-b-transparent group-hover:rounded-b-none">INVOICE</button>
-                                                <div v-if="quote.customInvoices && quote.customInvoices.length > 0"
-                                                    class="absolute top-full w-[160%] left-[-30%] border border-[#d4c391] border-t-0 rounded-b-md shadow-xl z-50 hidden group-hover:flex flex-col text-[11px] bg-white overflow-hidden pb-1">
-                                                    <div
-                                                        class="px-3 py-2 font-bold text-gray-500 bg-gray-50 border-b border-gray-100">
-                                                        Saved Invoices</div>
-                                                    <div v-for="(inv, i) in quote.customInvoices" :key="i"
-                                                        @click.stop="downloadCustomInvoice(quote.originalIndex, i)"
-                                                        class="px-3 py-2.5 hover:bg-[#f4ebd0] cursor-pointer border-b border-gray-50 truncate font-semibold text-gray-800 transition-colors"
-                                                        :title="inv.name">
-                                                        {{ inv.name || `Invoice ${i + 1}` }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <button @click.stop="exportDocument(quote.originalIndex, 'itinerary')"
-                                                class="flex-1 text-[10px] tracking-widest font-bold text-yellow-900 bg-[#f4ebd0] hover:bg-[#ebdcae] transition border border-[#d4c391] rounded shadow-sm py-2.5 px-2">ITINERARY</button>
+
                                         </div>
                                         <button @click.stop="deleteQuote(quote.originalIndex)"
                                             class="text-[11px] font-bold text-red-600 bg-red-50 px-4 flex items-center justify-center rounded hover:bg-red-100 transition border border-red-200 shrink-0">✕</button>
