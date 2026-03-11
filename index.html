@@ -146,12 +146,18 @@
                 </div>
             </div>
 
-            <!-- Floating Quotes Tab + Panel -->
-            <button @click="isQuotesDrawerOpen = true"
-                class="fixed right-0 top-32 bg-dt-orange text-white px-3 py-6 rounded-l-xl shadow-2xl z-40 transform transition-transform hover:-translate-x-1 flex items-center justify-center font-bold tracking-widest text-[11px] uppercase hover:bg-orange-600 border border-r-0 border-white/20"
-                style="writing-mode: vertical-rl; text-orientation: mixed;">
-                SAVED QUOTES
-            </button>
+            <!-- Floating Action Tabs (Top Right) -->
+            <div class="fixed top-0 right-4 md:right-8 flex gap-2 z-[60]">
+                <button @click="isQuotesDrawerOpen = true"
+                    class="bg-dt-orange text-white px-4 md:px-6 py-2.5 md:py-3 rounded-b-xl shadow-xl flex items-center justify-center font-bold tracking-widest text-[10px] md:text-[11px] uppercase hover:bg-orange-600 border border-t-0 border-white/20 transition-transform transform hover:translate-y-1">
+                    SAVED QUOTES
+                </button>
+                <button @click="saveQuote()" :disabled="!canSave"
+                    class="text-white px-4 md:px-6 py-2.5 md:py-3 rounded-b-xl shadow-xl flex items-center justify-center font-bold tracking-widest text-[10px] md:text-[11px] uppercase border border-t-0 border-white/20 transition-all transform"
+                    :class="canSave ? 'bg-green-600 hover:bg-green-500 animate-pulse hover:translate-y-1 cursor-pointer' : 'bg-gray-400 cursor-not-allowed opacity-80'">
+                    SAVE QUOTE
+                </button>
+            </div>
 
             <!-- The actual sliding drawer overlay -->
             <div v-if="isQuotesDrawerOpen" class="fixed inset-0 bg-black/40 z-[90] transition-opacity backdrop-blur-sm"
