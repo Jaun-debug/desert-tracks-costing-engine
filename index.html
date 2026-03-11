@@ -586,6 +586,15 @@
                                 <div
                                     class="text-[10px] text-orange-500 uppercase font-bold tracking-wider mb-3 border-b border-orange-200/50 pb-3">
                                     Total Client Invoice</div>
+
+                                <div class="space-y-2 text-xs mb-5 border-b border-orange-200/50 pb-5">
+                                    <div class="flex justify-between"><span class="text-orange-900/80">Desert Tracks
+                                            (20%)</span><span class="text-orange-900">{{ format(stoTotal * 0.20)
+                                            }}</span></div>
+                                    <div class="flex justify-between"><span class="text-orange-900/80">Agent
+                                            (5%)</span><span class="text-orange-900">{{
+                                            format(stoTotal * 0.05) }}</span></div>
+                                </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-orange-700 font-medium">Namibian ZAR/NAD Portion</span>
                                     <span class="font-bold text-orange-900 bg-white px-2 py-0.5 rounded shadow-sm">{{
@@ -606,11 +615,21 @@
                                 </div>
 
                                 <div v-if="botswanaUsdSummary > 0"
-                                    class="flex justify-between text-sm border-t border-orange-200/50 pt-2">
+                                    class="flex justify-between text-sm border-t border-orange-200/50 pt-2 mt-4">
                                     <span class="text-orange-700 font-medium">Botswana USD Portion (inc markup)</span>
                                     <span
                                         class="font-bold text-yellow-700 bg-white px-2 py-0.5 rounded shadow-sm">&#36;{{
                                         format(botswanaUsdSummary * 1.25) }}</span>
+                                </div>
+
+                                <div v-if="botswanaUsdSummary > 0"
+                                    class="space-y-2 text-xs my-5 border-b border-orange-200/50 pb-5">
+                                    <div class="flex justify-between"><span class="text-orange-900/80">Desert Tracks
+                                            (20%)</span><span class="text-orange-900">&#36;{{ format(botswanaUsdSummary
+                                            * 0.20) }}</span></div>
+                                    <div class="flex justify-between"><span class="text-orange-900/80">Agent
+                                            (5%)</span><span class="text-orange-900">&#36;{{
+                                            format(botswanaUsdSummary * 0.05) }}</span></div>
                                 </div>
                                 <div v-if="botswanaUsdSummary > 0" class="flex justify-between text-xs mt-2">
                                     <span class="text-orange-900/80 font-medium tracking-wide">Botswana Double Sharing
