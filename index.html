@@ -301,6 +301,7 @@
                                 class="text-[11px] text-gray-500 uppercase tracking-wider bg-gray-100/50 border-b border-gray-200">
                                 <tr>
                                     <th class="px-3 py-3 w-8">#</th>
+                                    <th class="px-3 py-3 w-[70px] text-center">Nights</th>
                                     <th class="px-3 py-3 w-40 text-center">Region & Lodge</th>
                                     <th class="px-3 py-3 w-[100px] text-center">Pricelist</th>
                                     <th class="px-3 py-3 text-right">Double PP
@@ -331,6 +332,13 @@
                                     :class="day.attachedPdf ? 'bg-green-100/60 border-green-200' : 'border-gray-100'">
                                     <td class="px-3 py-2 font-semibold text-gray-400 text-xs text-center">{{ index + 1
                                         }}</td>
+                                    <td class="px-3 py-2 text-center">
+                                        <div class="flex justify-center">
+                                            <input type="number" v-model.number="day.nights"
+                                                class="w-12 text-center font-bold text-sm bg-gray-50/50 py-1 border outline-none focus:ring-0 rounded-md border-gray-200 focus:border-dt-orange transition-colors"
+                                                min="1" max="99">
+                                        </div>
+                                    </td>
                                     <td class="px-3 py-2 flex flex-col gap-1 min-w-[200px]">
                                         <select v-model="day.region" @change="day.lodge=''"
                                             class="dt-input text-xs font-semibold bg-gray-50">
@@ -385,7 +393,7 @@
                             </tbody>
                             <tfoot class="bg-gray-100/80 font-bold border-t border-gray-200">
                                 <tr>
-                                    <td colspan="3"
+                                    <td colspan="4"
                                         class="px-3 py-4 text-right text-xs uppercase text-gray-500 tracking-wider">
                                         SUBTOTALS:</td>
                                     <td class="px-3 py-4 text-right">
@@ -878,8 +886,8 @@
                     currentPdfUrl: null,
                     extras: [],
                     itinerary: [
-                        { region: 'Windhoek', lodge: 'Acacia Guesthouse', attachedPdf: null, pp: 3264, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 },
-                        { region: 'Sossusvlei', lodge: 'Sossusvlei Lodge', attachedPdf: null, pp: 7000, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 },
+                        { region: 'Windhoek', lodge: 'Acacia Guesthouse', attachedPdf: null, nights: 1, pp: 3264, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 },
+                        { region: 'Sossusvlei', lodge: 'Sossusvlei Lodge', attachedPdf: null, nights: 1, pp: 7000, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 },
                     ]
                 }
             },
@@ -948,8 +956,9 @@
                 storeTotals() {
                     let group = 0, single = 0, vehicle = 0, guideFee = 0, guideAcc = 0;
                     this.itinerary.forEach(d => {
-                        group += (d.pp || 0); single += (d.single || 0);
-                        vehicle += (d.vehicle || 0); guideFee += (d.guideFee || 0); guideAcc += (d.guideAcc || 0);
+                        let n = parseInt(d.nights) || 1;
+                        group += (d.pp || 0) * n; single += (d.single || 0) * n;
+                        vehicle += (d.vehicle || 0) * n; guideFee += (d.guideFee || 0) * n; guideAcc += (d.guideAcc || 0) * n;
                     });
                     return { group, single, vehicle, guideFee, guideAcc };
                 },
@@ -994,7 +1003,7 @@
                 });
             },
             methods: {
-                addDay() { this.itinerary.push({ region: '', lodge: '', attachedPdf: null, pp: 0, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 }); },
+                addDay() { this.itinerary.push({ region: '', lodge: '', attachedPdf: null, nights: 1, pp: 0, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 }); },
                 removeDay(index) { this.itinerary.splice(index, 1); },
                 addActivity() { this.activities.push({ name: '', rate: 0, isPerPax: true }); },
                 removeActivity(index) { this.activities.splice(index, 1); },
