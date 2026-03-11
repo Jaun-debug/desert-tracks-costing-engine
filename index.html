@@ -891,35 +891,9 @@
                     ]
                 }
             },
-            watch: {
-                numPax(newVal) {
-                    if (this.singlePax >= newVal) {
-                        this.singlePax = newVal;
-                        this.doublePax = 0;
-                    } else {
-                        this.doublePax = newVal - this.singlePax;
-                    }
-                },
-                singlePax(newVal) {
-                    if (newVal > this.numPax) {
-                        this.singlePax = this.numPax;
-                        this.doublePax = 0;
-                    } else if (newVal + this.doublePax !== this.numPax) {
-                        this.doublePax = this.numPax - newVal;
-                    }
-                },
-                doublePax(newVal) {
-                    if (newVal > this.numPax) {
-                        this.doublePax = this.numPax;
-                        this.singlePax = 0;
-                    } else if (newVal + this.singlePax !== this.numPax) {
-                        this.singlePax = this.numPax - newVal;
-                    }
-                }
-            },
             computed: {
                 isPaxValid() {
-                    return (this.doublePax + this.singlePax) === this.numPax;
+                    return (Number(this.doublePax || 0) + Number(this.singlePax || 0)) === Number(this.numPax || 0);
                 },
                 canSave() {
                     return this.agentName.trim() !== '' &&
