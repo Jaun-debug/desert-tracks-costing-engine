@@ -728,61 +728,71 @@
 
                         <!-- TAB: DT + AGENT -->
                         <div v-if="activeTab === 'dt_agent'" class="space-y-4 font-normal">
-                            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
-                                <div class="text-[11px] font-bold text-emerald-600 uppercase mb-2">Consultant
+                            <div class="bg-gray-900 p-4 rounded-xl border border-gray-800 text-white">
+                                <div class="text-[11px] font-bold text-yellow-500 uppercase mb-2">Consultant
                                 </div>
-                                <div class="text-3xl font-bold text-emerald-900 mb-1">{{ format(stoTotal * 1.25) }}
+                                <div class="text-3xl font-bold text-white mb-1">{{ format(stoTotal * 1.25) }}
                                 </div>
                                 <div
-                                    class="text-[10px] text-emerald-500 uppercase font-bold tracking-wider mb-3 border-b border-emerald-200/50 pb-3">
+                                    class="text-[10px] text-gray-400 border-b border-gray-700 pb-3 mb-3 uppercase tracking-wider">
                                     Total Client Invoice</div>
 
-                                <div class="space-y-2 text-xs mb-4 bg-white/60 p-3 rounded-lg">
-                                    <div class="flex justify-between"><span class="text-emerald-700">Desert Tracks
-                                            (20%)</span><span class="font-semibold">{{ format(stoTotal * 0.20) }}</span>
+                                <div class="space-y-2 text-xs mb-5 border-b border-gray-700 pb-5">
+                                    <div class="flex justify-between"><span class="text-gray-400">Desert Tracks
+                                            (20%)</span><span class="text-white">{{ format(stoTotal * 0.20) }}</span>
                                     </div>
-                                    <div class="flex justify-between"><span class="text-emerald-700">Agent Override
-                                            (5%)</span><span class="font-bold text-emerald-600">{{ format(stoTotal *
+                                    <div class="flex justify-between"><span class="text-gray-400">Agent Override
+                                            (5%)</span><span class="text-white">{{ format(stoTotal *
                                             0.05) }}</span></div>
                                 </div>
 
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-emerald-700 font-medium">Namibian ZAR/NAD Portion</span>
-                                    <span class="font-bold text-emerald-900 bg-white px-2 py-0.5 rounded shadow-sm">{{
+                                    <span class="text-gray-300">Namibian ZAR/NAD Portion</span>
+                                    <span class="font-bold text-yellow-400 bg-black px-2 py-0.5 rounded">{{
                                         format(stoTotal * 1.25) }}</span>
                                 </div>
-                                <div class="flex justify-between text-xs mt-1 opacity-80">
-                                    <span class="text-emerald-800 font-medium tracking-wide">Namibian Double Sharing
+                                <div class="flex justify-between text-xs mt-2 text-gray-400">
+                                    <span class="font-medium tracking-wide">Namibian Double Sharing
                                         PP</span>
-                                    <span class="font-bold px-1 rounded">{{ format(perPaxCosting.doubleStoPP * 1.25)
+                                    <span class="text-white">{{ format(perPaxCosting.doubleStoPP * 1.25)
                                         }}</span>
                                 </div>
                                 <div v-if="singlePax > 0"
-                                    class="flex justify-between text-xs mt-1 mb-3 opacity-80 border-b border-emerald-200/50 pb-2">
-                                    <span class="text-emerald-800 font-medium tracking-wide">Namibian Single Traveler
+                                    class="flex justify-between text-xs mt-1 mb-2 text-gray-400 border-b border-gray-700/50 pb-3">
+                                    <span class="font-medium tracking-wide">Namibian Single Traveler
                                         PP</span>
-                                    <span class="font-bold px-1 rounded">{{ format(perPaxCosting.singleStoPP * 1.25)
+                                    <span class="text-white">{{ format(perPaxCosting.singleStoPP * 1.25)
                                         }}</span>
                                 </div>
 
                                 <div v-if="botswanaUsdSummary > 0"
-                                    class="flex justify-between text-sm border-t border-emerald-200/50 pt-2">
-                                    <span class="text-emerald-700 font-medium">Botswana USD Portion (inc markup)</span>
-                                    <span
-                                        class="font-bold text-emerald-800 bg-white px-2 py-0.5 rounded shadow-sm">&#36;{{
+                                    class="flex justify-between text-sm border-t border-gray-700/50 pt-2 mt-4">
+                                    <span class="text-gray-300">Botswana USD Portion (inc markup)</span>
+                                    <span class="font-bold text-yellow-500 bg-black px-2 py-0.5 rounded">&#36;{{
                                         format(botswanaUsdSummary * 1.25) }}</span>
                                 </div>
-                                <div v-if="botswanaUsdSummary > 0" class="flex justify-between text-xs mt-1 opacity-80">
-                                    <span class="text-emerald-800 font-medium tracking-wide">Botswana Double Sharing
+
+                                <div v-if="botswanaUsdSummary > 0"
+                                    class="space-y-2 text-xs my-5 border-b border-gray-700 pb-5">
+                                    <div class="flex justify-between"><span class="text-gray-400">Desert Tracks
+                                            (20%)</span><span class="text-white">&#36;{{ format(botswanaUsdSummary
+                                            * 0.20) }}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-400">Agent Override
+                                            (5%)</span><span class="text-white">&#36;{{
+                                            format(botswanaUsdSummary * 0.05) }}</span></div>
+                                </div>
+                                <div v-if="botswanaUsdSummary > 0"
+                                    class="flex justify-between text-xs mt-2 text-gray-400">
+                                    <span class="font-medium tracking-wide">Botswana Double Sharing
                                         PP</span>
-                                    <span class="font-bold px-1 rounded">&#36;{{ format(botswanaDoublePP * 1.25)
+                                    <span class="text-white">&#36;{{ format(botswanaDoublePP * 1.25)
                                         }}</span>
                                 </div>
                                 <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
-                                    class="flex justify-between text-xs mt-1 mb-3 opacity-80 border-b border-emerald-200/50 pb-2">
-                                    <span class="text-emerald-800 font-medium tracking-wide">Botswana Single Traveler
+                                    class="flex justify-between text-xs mt-1 mb-2 text-gray-400 border-b border-gray-700 pb-3">
+                                    <span class="font-medium tracking-wide">Botswana Single Traveler
                                         PP</span>
-                                    <span class="font-bold px-1 rounded">&#36;{{ format(botswanaSinglePP * 1.25)
+                                    <span class="text-white">&#36;{{ format(botswanaSinglePP * 1.25)
                                         }}</span>
                                 </div>
                             </div>
