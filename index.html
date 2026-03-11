@@ -310,25 +310,25 @@
                                     <th class="px-3 py-3 w-[70px] text-center">Nights</th>
                                     <th class="px-3 py-3 w-40 text-center">Region & Lodge</th>
                                     <th class="px-3 py-3 w-[100px] text-center">Pricelist</th>
-                                    <th class="px-3 py-3 w-[110px] text-right">Double PP
+                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Double PP
                                         <div class="inline-flex items-center ml-1 relative top-[1px]">
                                             <input type="number" v-model.number="doublePax" step="2" min="0"
-                                                class="w-8 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
+                                                class="w-10 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
                                                 :class="isPaxValid ? 'border-gray-300' : 'border-red-500 bg-red-50'"
                                                 title="Double Pax (Multiples of 2)">
                                         </div>
                                     </th>
-                                    <th class="px-3 py-3 w-[110px] text-right">Single PP
+                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Single PP
                                         <div class="inline-flex items-center ml-1 relative top-[1px]">
                                             <input type="number" v-model.number="singlePax"
-                                                class="w-8 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
+                                                class="w-10 text-center text-[11px] text-gray-800 font-bold border rounded-sm py-0.5 focus:border-dt-orange outline-none"
                                                 :class="isPaxValid ? 'border-gray-300' : 'border-red-500 bg-red-50'"
                                                 title="Single Pax">
                                         </div>
                                     </th>
-                                    <th class="px-3 py-3 w-[110px] text-right">Vehicle</th>
-                                    <th class="px-3 py-3 w-[110px] text-right">Guide Fee</th>
-                                    <th class="px-3 py-3 w-[110px] text-right">Guide Acc.</th>
+                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Vehicle</th>
+                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Guide Fee</th>
+                                    <th class="px-3 py-3 w-[130px] min-w-[130px] text-right">Guide Acc.</th>
                                     <th class="px-2 py-3"></th>
                                 </tr>
                             </thead>
@@ -352,13 +352,15 @@
                                             <option v-for="r in Object.keys(regions)" :key="r" :value="r">{{r}}</option>
                                         </select>
                                         <select v-model="day.lodge" :disabled="!day.region"
-                                            class="dt-input text-xs font-medium"
+                                            @change="handleLodgeChange(day)" class="dt-input text-xs font-medium"
                                             :class="{'text-green-700 bg-green-50 border-green-300 font-bold': day.attachedPdf}">
                                             <option value="">Select Lodge...</option>
                                             <option v-for="l in regions[day.region] || []" :key="l" :value="l"
                                                 :class="uploadedLodges.includes(l) ? 'text-green-600 font-bold bg-green-50' : ''">
                                                 {{l}}{{ uploadedLodges.includes(l) ? ' ✓' : '' }}
                                             </option>
+                                            <option value="__custom__" class="font-bold text-dt-orange">+ Add Custom
+                                                Lodge...</option>
                                         </select>
                                     </td>
                                     <td class="px-2 py-2 text-center text-[10px]">
@@ -998,6 +1000,21 @@
                 });
             },
             methods: {
+                handleLodgeChange(day) {
+                    if (day.lodge === '__custom__') {
+                        const customName = prompt("Enter the name of the new custom lodge:");
+                        if (customName && customName.trim() !== '') {
+                            const cleanName = customName.trim();
+                            if (!this.regions[day.region].includes(cleanName)) {
+                                this.regions[day.region].push(cleanName);
+                                this.regions[day.region].sort((a, b) => a.localeCompare(b));
+                            }
+                            day.lodge = cleanName;
+                        } else {
+                            day.lodge = '';
+                        }
+                    }
+                },
                 addDay() { this.itinerary.push({ region: '', lodge: '', attachedPdf: null, nights: 1, pp: 0, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0 }); },
                 removeDay(index) { this.itinerary.splice(index, 1); },
                 addActivity() { this.activities.push({ name: '', rate: 0, isPerPax: true }); },
@@ -1075,6 +1092,13 @@
                     this.activities = quote.activities;
                     this.extras = Array.isArray(quote.extras) ? quote.extras : [];
                     this.itinerary = quote.itinerary;
+
+                    this.isQuotesDrawerOpen = false;
+
+                    // Immediately pop open the Costing document as requested
+                    setTimeout(() => {
+                        this.exportDocument(index, 'costing');
+                    }, 150);
                 },
                 downloadCustomInvoice(quoteIndex, invoiceIndex) {
                     const quote = this.savedQuotes.find(q => q.originalIndex === quoteIndex);
