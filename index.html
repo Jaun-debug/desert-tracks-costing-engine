@@ -121,35 +121,19 @@
                     </div>
                     <div class="flex items-center gap-3 bg-white p-3 rounded-[14px] border border-gray-200 shadow-sm">
                         <label
+                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-16 leading-tight">Quote
+                            Label</label>
+                        <input type="text" v-model="quoteLabel"
+                            class="w-full font-bold text-sm bg-transparent border-0 outline-none focus:ring-0 text-gray-800 p-0"
+                            placeholder="e.g. Option A">
+                    </div>
+                    <div class="flex items-center gap-3 bg-white p-3 rounded-[14px] border border-gray-200 shadow-sm">
+                        <label
                             class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-16 leading-tight">Agent
                             Name</label>
                         <input type="text" v-model="agentName"
                             class="w-full font-bold text-sm bg-transparent border-0 outline-none focus:ring-0 text-gray-800 p-0"
                             placeholder="e.g. Jane Doe">
-                    </div>
-                    <div
-                        class="flex flex-col gap-2 bg-white p-3 rounded-[14px] border border-yellow-200 shadow-sm border-l-4 border-l-yellow-400">
-                        <label
-                            class="text-[11px] font-extrabold text-gray-700 uppercase tracking-widest w-full leading-tight">Botswana
-                            Safari <span class="text-[9px] text-gray-400 font-medium">(USD)</span></label>
-                        <div class="flex gap-2">
-                            <div class="relative w-full">
-                                <span
-                                    class="absolute left-2 top-0.5 text-[9px] text-yellow-700/70 font-bold uppercase">Sharing
-                                    PP</span>
-                                <input type="number" v-model.number="botswanaDoublePP"
-                                    class="w-full pl-2 pt-4 pb-1 font-bold text-sm bg-yellow-50/50 rounded text-yellow-800 border border-yellow-100 outline-none focus:ring-1 focus:ring-yellow-400 text-right uppercase"
-                                    placeholder="0">
-                            </div>
-                            <div class="relative w-full">
-                                <span
-                                    class="absolute left-2 top-0.5 text-[9px] text-yellow-700/70 font-bold uppercase">Single
-                                    PP</span>
-                                <input type="number" v-model.number="botswanaSinglePP"
-                                    class="w-full pl-2 pt-4 pb-1 font-bold text-sm bg-yellow-50/50 rounded text-yellow-800 border border-yellow-100 outline-none focus:ring-1 focus:ring-yellow-400 text-right uppercase"
-                                    placeholder="0">
-                            </div>
-                        </div>
                     </div>
                     <div
                         class="flex items-center justify-between gap-3 bg-white p-3 rounded-[14px] border border-gray-200 shadow-sm border-l-4 border-l-gray-400">
@@ -232,13 +216,15 @@
                                             @change="loadQuote(clientQuotes.selectedQuoteIndex)">
                                             <option v-for="(q, idx) in clientQuotes" :key="q.originalIndex"
                                                 :value="q.originalIndex">
-                                                Quote v{{ clientQuotes.length - idx }} ({{ new
+                                                {{ q.quoteLabel || ('Version ' + (clientQuotes.length - idx)) }} ({{ new
                                                 Date(q.timestamp).toLocaleString() }})
                                             </option>
                                         </select>
                                     </div>
                                     <div class="text-[10px] text-gray-500 mb-1" v-else>
-                                        Created: {{ new Date(clientQuotes[0].timestamp).toLocaleString() }}
+                                        <span v-if="clientQuotes[0].quoteLabel" class="font-bold text-gray-700">{{
+                                            clientQuotes[0].quoteLabel }} - </span>Created: {{ new
+                                        Date(clientQuotes[0].timestamp).toLocaleString() }}
                                     </div>
 
                                     <div class="flex gap-4 items-stretch">
@@ -483,7 +469,35 @@
             </div>
 
             <!-- BOTTOM ROW: FINAL INVOICING -->
-            <div class="w-full relative">
+            <div class="w-full relative flex flex-col gap-6">
+
+                <!-- Botswana Block Moved Above -->
+                <div
+                    class="flex flex-col gap-3 bg-white p-5 rounded-2xl border border-yellow-200 shadow-sm border-l-8 border-l-yellow-400 max-w-lg">
+                    <label
+                        class="text-sm font-extrabold text-gray-800 uppercase tracking-widest w-full leading-tight mb-1">
+                        Botswana Safari <span class="text-[10px] text-gray-400 font-bold">(USD)</span>
+                    </label>
+                    <div class="flex gap-4">
+                        <div class="relative w-full">
+                            <span
+                                class="absolute left-3 top-1 text-[10px] text-yellow-700/80 font-bold uppercase">Sharing
+                                PP</span>
+                            <input type="number" v-model.number="botswanaDoublePP"
+                                class="w-full pl-3 pt-6 pb-2 font-black text-xl bg-yellow-50/60 rounded-xl text-yellow-900 border border-yellow-100 outline-none focus:ring-2 focus:ring-yellow-400 text-right"
+                                placeholder="0">
+                        </div>
+                        <div class="relative w-full">
+                            <span
+                                class="absolute left-3 top-1 text-[10px] text-yellow-700/80 font-bold uppercase">Single
+                                PP</span>
+                            <input type="number" v-model.number="botswanaSinglePP"
+                                class="w-full pl-3 pt-6 pb-2 font-black text-xl bg-yellow-50/60 rounded-xl text-yellow-900 border border-yellow-100 outline-none focus:ring-2 focus:ring-yellow-400 text-right"
+                                placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden">
 
                     <div
@@ -740,6 +754,7 @@
                 return {
                     activeTab: 'dt',
                     clientName: '',
+                    quoteLabel: '',
                     agentName: '',
                     expandedAgent: null,
                     savedQuotes: JSON.parse(localStorage.getItem('dtSavedQuotes') || '[]'),
@@ -878,6 +893,7 @@
                         timestamp: Date.now(),
                         activeTab: this.activeTab,
                         clientName: this.clientName,
+                        quoteLabel: this.quoteLabel,
                         agentName: this.agentName,
                         numPax: this.numPax,
                         doublePax: this.doublePax,
@@ -899,6 +915,7 @@
                     const quote = this.savedQuotes[index];
                     this.activeTab = quote.activeTab || 'dt';
                     this.clientName = quote.clientName;
+                    this.quoteLabel = quote.quoteLabel || '';
                     this.agentName = quote.agentName;
                     this.numPax = quote.numPax;
                     this.doublePax = quote.doublePax !== undefined ? quote.doublePax : quote.numPax;
