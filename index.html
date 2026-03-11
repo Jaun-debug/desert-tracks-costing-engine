@@ -224,23 +224,33 @@
                                             {{ clientQuotes.length }} Version{{ clientQuotes.length > 1 ? 's' : '' }}
                                         </span>
                                     </div>
-                                    <div class="flex flex-col gap-2">
-                                        <div v-for="(q, idx) in clientQuotes" :key="q.originalIndex"
-                                            class="flex justify-between items-center bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-dt-orange/50 hover:-translate-y-0.5 hover:shadow-md transition-all group cursor-pointer"
-                                            @click.stop="loadQuote(q.originalIndex); isQuotesDrawerOpen = false">
-                                            <div class="flex-1 min-w-0 pr-2">
-                                                <div class="text-[10px] font-bold text-gray-800 truncate mb-0.5">{{
-                                                    q.quoteLabel || ('Version ' + (clientQuotes.length - idx)) }}</div>
-                                                <div class="text-[9px] text-gray-400 font-medium">{{ new
-                                                    Date(q.timestamp).toLocaleString() }}</div>
-                                            </div>
-                                            <div class="flex items-center gap-1.5 shrink-0 transition-opacity">
-                                                <button @click.stop="exportDocument(q.originalIndex, 'costing')"
-                                                    class="px-2 py-1.5 bg-[#f4ebd0] text-yellow-900 border border-[#d4c391] text-[9px] font-bold tracking-wider rounded border-b-2 hover:bg-[#ebdcae] transition-colors shadow-sm">COSTING</button>
-                                                <button @click.stop="deleteQuote(q.originalIndex)"
-                                                    class="px-2.5 py-1 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-600 border border-transparent rounded text-[10px] font-bold transition-colors shadow-sm">✕</button>
-                                            </div>
-                                        </div>
+                                    <div class="bg-white rounded border border-gray-200 overflow-hidden mb-2"
+                                        @click.stop v-if="clientQuotes.length > 1">
+                                        <select
+                                            class="w-full text-[10px] font-bold text-gray-600 p-1.5 outline-none bg-transparent min-w-0"
+                                            v-model="clientQuotes.selectedQuoteIndex"
+                                            @change="loadQuote(clientQuotes.selectedQuoteIndex); isQuotesDrawerOpen = false">
+                                            <option :value="undefined" disabled>Select quote version...</option>
+                                            <option v-for="(q, idx) in clientQuotes" :key="q.originalIndex"
+                                                :value="q.originalIndex">
+                                                {{ q.quoteLabel || ('Version ' + (clientQuotes.length - idx)) }} ({{ new
+                                                Date(q.timestamp).toLocaleString() }})
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="text-[10px] text-gray-500 mb-1" v-else>
+                                        <span v-if="clientQuotes[0].quoteLabel" class="font-bold text-gray-700">{{
+                                            clientQuotes[0].quoteLabel }} - </span>Created: {{ new
+                                        Date(clientQuotes[0].timestamp).toLocaleString() }}
+                                    </div>
+
+                                    <div class="flex gap-2 items-stretch mt-1">
+                                        <button
+                                            @click.stop="exportDocument(clientQuotes.selectedQuoteIndex ?? clientQuotes[0].originalIndex, 'costing')"
+                                            class="flex-1 px-2 py-1.5 bg-[#f4ebd0] text-yellow-900 border border-[#d4c391] text-[10px] font-bold tracking-widest rounded shadow-sm hover:bg-[#ebdcae] transition-colors">COSTING</button>
+                                        <button
+                                            @click.stop="deleteQuote(clientQuotes.selectedQuoteIndex ?? clientQuotes[0].originalIndex)"
+                                            class="px-2.5 py-1 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-600 border border-transparent rounded text-[11px] font-bold transition-colors shadow-sm shrink-0">✕</button>
                                     </div>
                                 </div>
                             </template>
