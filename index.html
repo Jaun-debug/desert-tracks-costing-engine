@@ -1340,10 +1340,12 @@
                     }
                 },
                 deleteQuote(index) {
-                    if (confirm('Are you sure you want to delete this quote?')) {
-                        this.savedQuotes.splice(index, 1);
-                        localStorage.setItem('dtSavedQuotes', JSON.stringify(this.savedQuotes));
-                    }
+                    setTimeout(() => {
+                        if (confirm('Are you sure you want to delete this quote?')) {
+                            this.savedQuotes.splice(index, 1);
+                            localStorage.setItem('dtSavedQuotes', JSON.stringify(this.savedQuotes));
+                        }
+                    }, 10);
                 },
                 format(val) { return Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
             }
