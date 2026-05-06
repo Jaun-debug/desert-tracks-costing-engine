@@ -6,18 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desert Tracks Premium Pricing Engine v2</title>
     <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script data-no-optimize="1" src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script data-no-optimize="1" src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
-    <style>
+    <style data-no-optimize="1">
         :root {
             --primary: #1a1a24;
             --accent: #d87a4d;
             --accent-hover: #e2a85e;
-            --bg-subtle: #f8f7f5;
+            --bg-subtle: #ffffff;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
@@ -132,33 +136,129 @@
     </style>
 </head>
 
-<body class="p-4 md:p-8 min-h-screen">
-    <div id="app" v-cloak class="w-full mx-auto flex flex-col gap-6">
+<body class="p-4 md:p-8 min-h-screen bg-[#F5F5F3]">
+    <div id="app" v-cloak class="w-full max-w-[1600px] mx-auto flex flex-col lg:flex-row gap-8 items-start">
+    
+        <!-- LEFT SIDEBAR -->
+        <div class="w-full lg:w-[280px] shrink-0 sticky top-8 z-50">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-6 h-[calc(100vh-4rem)]">
+                
+                <!-- 1. Costing Mode Switcher -->
+                <div class="flex flex-col gap-2">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1 mb-1">Costing Mode</h3>
+                    <div class="flex flex-col gap-2">
+                        <button @click="activeTab='dt'" 
+                            :class="activeTab === 'dt' ? 'bg-[#1F4F4B] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                            class="w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-left flex justify-between items-center">
+                            <span>Desert Tracks</span>
+                            <span v-if="activeTab === 'dt'" class="w-2 h-2 rounded-full bg-[#C9A24A]"></span>
+                        </button>
+                        <button @click="activeTab='dt_agent'" 
+                            :class="activeTab === 'dt_agent' ? 'bg-[#1F4F4B] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                            class="w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-left flex justify-between items-center">
+                            <span>DT + Consultant</span>
+                            <span v-if="activeTab === 'dt_agent'" class="w-2 h-2 rounded-full bg-[#C9A24A]"></span>
+                        </button>
+                        <button @click="activeTab='tl'" 
+                            :class="activeTab === 'tl' ? 'bg-[#1F4F4B] text-white shadow-md' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'"
+                            class="w-full py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all text-left flex justify-between items-center">
+                            <span>Travel Local</span>
+                            <span v-if="activeTab === 'tl'" class="w-2 h-2 rounded-full bg-[#C9A24A]"></span>
+                        </button>
+                    </div>
+                </div>
 
-        <!-- Elegant Header Configuration -->
-        <div class="flex flex-col mb-4 bg-transparent -mx-4 md:-mx-8 px-4 md:px-8 mt-0 pt-6 pb-2">
+                <!-- 2. Quote Navigation -->
+                <div class="flex-1 overflow-y-auto pr-1">
+                    <h3 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1 mb-3">Quote Flow</h3>
+                    <nav class="flex flex-col gap-1">
+                        <a href="#step-1-client" @click.prevent="scrollTo('step-1-client')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-1-client' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-1-client' ? 'border-white/30 text-white' : (isCompleted['step-1-client'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-1-client'] && activeSection !== 'step-1-client' ? '✓' : '1' }}
+                            </span> Client Details
+                        </a>
+                        <a href="#step-2-pax" @click.prevent="scrollTo('step-2-pax')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-2-pax' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-2-pax' ? 'border-white/30 text-white' : (isCompleted['step-2-pax'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-2-pax'] && activeSection !== 'step-2-pax' ? '✓' : '2' }}
+                            </span> Passenger Config
+                        </a>
+                        <a href="#step-3-itinerary" @click.prevent="scrollTo('step-3-itinerary')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-3-itinerary' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-3-itinerary' ? 'border-white/30 text-white' : (isCompleted['step-3-itinerary'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-3-itinerary'] && activeSection !== 'step-3-itinerary' ? '✓' : '3' }}
+                            </span> Itinerary Builder
+                        </a>
+                        <a href="#step-4-fuel" @click.prevent="scrollTo('step-4-fuel')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-4-fuel' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-4-fuel' ? 'border-white/30 text-white' : (isCompleted['step-4-fuel'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-4-fuel'] && activeSection !== 'step-4-fuel' ? '✓' : '4' }}
+                            </span> Fuel & Distance
+                        </a>
+                        <a href="#step-5-activities" @click.prevent="scrollTo('step-5-activities')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-5-activities' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-5-activities' ? 'border-white/30 text-white' : (isCompleted['step-5-activities'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-5-activities'] && activeSection !== 'step-5-activities' ? '✓' : '5' }}
+                            </span> Activities
+                        </a>
+                        <a href="#step-6-extras" @click.prevent="scrollTo('step-6-extras')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-6-extras' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-6-extras' ? 'border-white/30 text-white' : (isCompleted['step-6-extras'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-6-extras'] && activeSection !== 'step-6-extras' ? '✓' : '6' }}
+                            </span> Extras
+                        </a>
+                        <a href="#step-7-botswana" @click.prevent="scrollTo('step-7-botswana')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-7-botswana' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-7-botswana' ? 'border-white/30 text-white' : (isCompleted['step-7-botswana'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-7-botswana'] && activeSection !== 'step-7-botswana' ? '✓' : '7' }}
+                            </span> Botswana / Add-ons
+                        </a>
+                        <a href="#step-8-pricing" @click.prevent="scrollTo('step-8-pricing')" class="py-2 px-3 text-xs font-semibold rounded-lg transition-colors flex items-center gap-3"
+                           :class="activeSection === 'step-8-pricing' ? 'bg-[#1F4F4B] text-white shadow-md' : 'text-gray-600 hover:bg-gray-50'">
+                            <span class="w-5 h-5 rounded-full border flex items-center justify-center text-[9px] transition-colors"
+                                  :class="activeSection === 'step-8-pricing' ? 'border-white/30 text-white' : (isCompleted['step-8-pricing'] ? 'bg-green-100 border-green-500 text-green-600' : 'bg-white border-gray-300 text-gray-400')">
+                                {{ isCompleted['step-8-pricing'] && activeSection !== 'step-8-pricing' ? '✓' : '8' }}
+                            </span> Final Pricing
+                        </a>
+                    </nav>
+                </div>
 
-            <div class="text-center mb-10">
-                <h1 class="text-5xl lg:text-7xl font-normal tracking-tight text-[#1a1a24] serif-font drop-shadow-sm mb-3">Costing Engine</h1>
-                <p class="text-dt-orange text-xs md:text-sm font-bold tracking-[0.3em] uppercase">Desert Tracks Premium Pricing</p>
-                <div class="h-[1px] w-32 bg-gradient-to-r from-transparent via-[#d87a4d] to-transparent mx-auto mt-8"></div>
+                <!-- 3. Save Actions -->
+                <div class="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-3">
+                    <button @click="saveQuote()" :disabled="!canSave"
+                        class="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-md flex justify-center items-center gap-2"
+                        :class="canSave ? 'bg-[#1a1a24] text-white hover:bg-black hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
+                        💾 Save Quote
+                    </button>
+                    <button @click="isQuotesDrawerOpen = true"
+                        class="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                        📂 Saved Quotes
+                    </button>
+                </div>
+
             </div>
+        </div>
 
-            <!-- Elegant Tabs Full Width -->
-            <div class="flex justify-center gap-8 md:gap-16 px-4 flex-wrap mt-2">
-                <div class="tab-btn text-[10px] md:text-xs uppercase tracking-[0.2em] whitespace-nowrap"
-                    :class="activeTab === 'dt' ? 'active' : ''"
-                    @click="activeTab='dt'">Desert Tracks</div>
-                <div class="tab-btn text-[10px] md:text-xs uppercase tracking-[0.2em] whitespace-nowrap"
-                    :class="activeTab === 'dt_agent' ? 'active' : ''"
-                    @click="activeTab='dt_agent'">Desert Tracks + Consultant</div>
-                <div class="tab-btn text-[10px] md:text-xs uppercase tracking-[0.2em] whitespace-nowrap"
-                    :class="activeTab === 'tl' ? 'active' : ''"
-                    @click="activeTab='tl'">Travel Local</div>
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col gap-8 min-w-0">
+
+            <div class="text-center lg:text-left mb-2">
+                <h1 class="text-4xl lg:text-5xl font-normal tracking-tight text-[#1a1a24] serif-font drop-shadow-sm mb-3">Costing Engine</h1>
+                <p class="text-dt-orange text-xs md:text-sm font-bold tracking-[0.3em] uppercase">Desert Tracks Premium Pricing</p>
+                <div class="h-[1px] w-full max-w-md bg-gradient-to-r from-[#d87a4d] to-transparent mt-8 hidden lg:block"></div>
+                <div class="h-[1px] w-32 bg-gradient-to-r from-transparent via-[#d87a4d] to-transparent mx-auto mt-8 block lg:hidden"></div>
             </div>
 
             <!-- Meta Data Row Settings -->
-            <div class="glass p-6 lg:p-8 mb-4 mt-8 rounded-[1.5rem] w-full mx-auto relative overflow-hidden transition-all duration-300">
+            <div id="step-1-client" v-show="activeSection === 'step-1-client'" class="bg-white border border-gray-100 shadow-[0_10px_40px_rgba(0,0,0,0.02)] p-6 lg:p-8 rounded-[1.5rem] w-full relative overflow-hidden transition-all duration-300">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-[#d87a4d] opacity-[0.03] rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
                     <div class="flex flex-col gap-2 relative">
@@ -168,6 +268,10 @@
                     <div class="flex flex-col gap-2 relative">
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] pl-1">Quote Label</label>
                         <input type="text" v-model="quoteLabel" class="dt-input" placeholder="e.g. Option A">
+                    </div>
+                    <div class="flex flex-col gap-2 relative border-r border-transparent md:border-gray-200/40 pr-0 md:pr-4">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] pl-1">Start Date 📅</label>
+                        <input type="date" v-model="arrivalDate" class="dt-input text-gray-600 font-semibold" style="height: 48px;">
                     </div>
                     <div class="flex flex-col gap-2 relative border-r border-transparent md:border-gray-200/40 pr-0 md:pr-4">
                         <label class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] pl-1">Agent Name</label>
@@ -180,18 +284,7 @@
                 </div>
             </div>
 
-            <!-- Floating Action Tabs (Top Right) -->
-            <div class="fixed top-0 right-4 md:right-8 flex gap-2 z-[60]">
-                <button @click="isQuotesDrawerOpen = true"
-                    class="bg-gray-900 text-white px-5 md:px-6 py-2 md:py-3 rounded-b-xl shadow-lg flex items-center justify-center font-bold tracking-[0.15em] text-[10px] md:text-xs uppercase hover:bg-black transition-transform transform hover:translate-y-1">
-                    SAVED QUOTES
-                </button>
-                <button @click="saveQuote()" :disabled="!canSave"
-                    class="text-white px-5 md:px-6 py-2 md:py-3 rounded-b-xl shadow-lg flex items-center justify-center font-bold tracking-[0.15em] text-[10px] md:text-xs uppercase transition-all transform"
-                    :class="canSave ? 'bg-dt-orange hover:bg-[#b85b30] btn-premium cursor-pointer' : 'bg-gray-300 cursor-not-allowed text-gray-500'">
-                    SAVE QUOTE
-                </button>
-            </div>
+
 
             <!-- The actual sliding drawer overlay -->
             <div v-if="isQuotesDrawerOpen" class="fixed inset-0 bg-black/40 z-[90] transition-opacity backdrop-blur-sm"
@@ -319,19 +412,52 @@
                 </div>
             </div>
 
-        </div>
+            <!-- Remaining App Content is now directly inside MAIN CONTENT -->
+            <div class="w-full space-y-8 shrink-0 z-10">
 
-        <div class="flex flex-col xl:flex-row xl:items-start gap-6 relative">
+                <!-- Pax Groups UI -->
+                <div id="step-2-pax" v-show="activeSection === 'step-2-pax'" class="bg-white rounded-[1.25rem] shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="font-bold text-gray-800 tracking-wide uppercase text-sm">Passenger Configuration</h3>
+                        <button @click="addGroup" class="px-4 py-1.5 bg-gray-900 border border-gray-900 shadow-sm text-white text-[10px] uppercase font-bold rounded hover:bg-dt-orange hover:border-dt-orange transition-colors">+ Add Group</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div v-for="(g, idx) in paxGroups" :key="g.id" class="bg-gray-50 border text-center border-gray-200 rounded-xl p-4 relative shadow-sm transition-all hover:border-gray-300">
+                            <button v-if="paxGroups.length > 1" @click="removeGroup(idx)" class="absolute top-2 right-2.5 text-gray-400 hover:text-red-500 font-bold transition-colors">✕</button>
+                            <input v-model="g.name" class="font-bold text-sm bg-transparent border-b border-gray-200 outline-none w-3/4 mb-4 pb-1 text-center text-gray-800 focus:border-dt-orange" placeholder="e.g. Group 1" />
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                <label class="text-[9px] uppercase font-bold tracking-wider text-gray-400 mb-1.5 block">Double</label>
+                                <input type="number" v-model.number="g.double" step="2" class="w-full dt-input text-center font-bold px-1 py-1.5 text-sm bg-white shadow-sm border border-gray-100 rounded" min="0" autocomplete="off">
+                                </div>
+                                <div>
+                                <label class="text-[9px] uppercase font-bold tracking-wider text-gray-400 mb-1.5 block">Single</label>
+                                <input type="number" v-model.number="g.single" class="w-full dt-input text-center font-bold px-1 py-1.5 text-sm bg-white shadow-sm border border-gray-100 rounded" min="0" autocomplete="off">
+                                </div>
+                                <div>
+                                <label class="text-[9px] uppercase font-bold tracking-wider text-gray-400 mb-1.5 block">Child</label>
+                                <input type="number" v-model.number="g.child" class="w-full dt-input text-center font-bold px-1 py-1.5 text-sm bg-white shadow-sm border border-gray-100 rounded" min="0" autocomplete="off">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="w-full xl:w-[70%] space-y-8 shrink-0 z-10">
                 <!-- Itinerary Builder -->
-                <div class="bg-white rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 overflow-hidden">
+                <div id="step-3-itinerary" v-show="activeSection === 'step-3-itinerary'" class="bg-[#F4F5F6] rounded-[1.25rem] shadow-sm border border-[#e5e7e9] overflow-hidden">
                     <div class="flex justify-between items-center p-6 border-b border-gray-50">
                         <h2 class="text-xl font-bold text-gray-900 font-heading">Itinerary Breakdown</h2>
-                        <button @click="addDay"
-                            class="bg-gray-900 text-white px-4 py-2 rounded-lg text-xs font-bold tracking-widest uppercase hover:bg-black transition shadow-sm btn-premium">
-                            + Add Day
-                        </button>
+                        
+                        <div class="flex items-center gap-2">
+                            <select v-model="globalSeason" class="text-xs font-bold bg-white border border-gray-200 text-gray-600 rounded-lg px-3 py-2 outline-none focus:border-dt-orange shadow-sm cursor-pointer uppercase tracking-widest">
+                                <option value="low">Off-Peak (Nov - Jun)</option>
+                                <option value="high">Peak (Jul - Oct)</option>
+                            </select>
+                            <button @click="addDay"
+                                class="bg-[#79b4ff] hover:bg-[#63a0ec] text-white px-4 py-2 rounded-lg text-xs font-bold tracking-widest uppercase transition shadow-sm btn-premium">
+                                + Add Day
+                            </button>
+                        </div>
                     </div>
 
                     <div class="overflow-x-auto pb-4">
@@ -339,29 +465,16 @@
                             <thead class="text-[10px] text-gray-400 uppercase tracking-widest bg-gray-50/50 border-b border-gray-100">
                                 <tr>
                                     <th class="px-4 py-4 w-10 font-bold">#</th>
-                                    <th class="px-3 py-4 w-[80px] text-center font-bold">Nights</th>
+                                    <th class="px-3 py-4 w-[60px] text-center font-bold">Nights</th>
                                     <th class="px-3 py-4 w-48 text-left font-bold">Region & Lodge</th>
-                                    <th class="px-3 py-4 w-[110px] text-center font-bold">Pricelist</th>
-                                    <th class="px-3 py-4 w-[160px] min-w-[160px] text-right font-bold">Double PP
-                                        <div class="inline-flex flex-col items-center ml-2 relative top-[-2px]">
-                                            <input type="number" v-model.number="doublePax" step="2" min="0" autocomplete="off"
-                                                class="w-10 text-center text-xs text-gray-800 font-bold border rounded py-0.5 focus:border-dt-orange focus:ring-1 focus:ring-dt-orange/30 outline-none transition-all"
-                                                :class="isPaxValid ? 'border-gray-200 bg-white' : 'border-red-400 bg-red-50 text-red-700'"
-                                                title="Double Pax (Multiples of 2)">
-                                        </div>
-                                    </th>
-                                    <th class="px-3 py-4 w-[160px] min-w-[160px] text-right font-bold">Single PP
-                                        <div class="inline-flex flex-col items-center ml-2 relative top-[-2px]">
-                                            <input type="number" v-model.number="singlePax" autocomplete="off"
-                                                class="w-10 text-center text-xs text-gray-800 font-bold border rounded py-0.5 focus:border-dt-orange focus:ring-1 focus:ring-dt-orange/30 outline-none transition-all"
-                                                :class="isPaxValid ? 'border-gray-200 bg-white' : 'border-red-400 bg-red-50 text-red-700'"
-                                                title="Single Pax">
-                                        </div>
-                                    </th>
-                                    <th class="px-2 py-4 w-[130px] min-w-[130px] text-center font-bold">Price Lock</th>
-                                    <th class="px-3 py-4 w-[160px] min-w-[160px] text-right font-bold">Vehicle</th>
-                                    <th class="px-3 py-4 w-[160px] min-w-[160px] text-right font-bold">Guide Fee</th>
-                                    <th class="px-3 py-4 w-[160px] min-w-[160px] text-right font-bold">Guide Acc.</th>
+                                    <th class="px-3 py-4 w-[90px] text-center font-bold">Pricelist</th>
+                                                                        <th class="px-3 py-4 w-[130px] min-w-[130px] text-right font-bold">Double PP</th>
+                                    <th class="px-3 py-4 w-[130px] min-w-[130px] text-right font-bold">Single PP</th>
+                                    <th class="px-3 py-4 w-[130px] min-w-[130px] text-right font-bold">Child PP</th>
+                                    <th class="px-3 py-4 w-[110px] min-w-[110px] text-right font-bold">Vehicle</th>
+                                    <th class="px-3 py-4 w-[110px] min-w-[110px] text-right font-bold">Guide Fee</th>
+                                    <th class="px-3 py-4 w-[110px] min-w-[110px] text-right font-bold">Guide Acc.</th>
+                                    <th class="px-3 py-4 w-[110px] min-w-[110px] text-right font-bold">Flights</th>
                                     <th class="px-2 py-4"></th>
                                 </tr>
                             </thead>
@@ -377,6 +490,12 @@
                                                 class="w-12 text-center font-bold text-sm bg-gray-50/50 py-1 border outline-none focus:ring-0 rounded-md border-gray-200 focus:border-dt-orange transition-colors"
                                                 min="1" max="99">
                                         </div>
+                                        <div v-if="rowDates[index]" class="text-[9px] text-gray-400 font-bold mt-1 tracking-wider uppercase">
+                                            {{ new Date(rowDates[index]).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) }}
+                                        </div>
+                                        <button v-if="day.lodge" @click="toggleManualSeason(day, index)" class="text-[8px] font-black mt-0.5 uppercase tracking-widest px-1 py-0.5 rounded cursor-pointer hover:bg-gray-100 border border-transparent hover:border-gray-200 transition-colors w-full" :class="getSeason(index) === 'high' ? 'text-dt-orange' : 'text-blue-400'" title="Click to manually toggle season">
+                                            {{ getSeason(index) === 'high' ? 'PEAK' : 'OFF PEAK' }}
+                                        </button>
                                     </td>
                                     <td class="px-3 py-2 flex flex-col gap-1 min-w-[200px]">
                                         <select v-model="day.region" @change="day.lodge=''"
@@ -385,7 +504,7 @@
                                             <option v-for="r in Object.keys(regions)" :key="r" :value="r">{{r}}</option>
                                         </select>
                                         <select v-model="day.lodge" :disabled="!day.region"
-                                            @change="handleLodgeChange(day)" class="dt-input text-xs font-medium"
+                                            @change="handleLodgeChange(day, index)" class="dt-input text-xs font-medium"
                                             :class="{'text-green-700 bg-green-50 border-green-300 font-bold': day.attachedPdf}">
                                             <option value="">Select Lodge...</option>
                                             <option v-for="l in regions[day.region] || []" :key="l" :value="l"
@@ -422,22 +541,15 @@
                                             :custom-class="day.isLocked ? 'dt-input text-right font-medium bg-gray-100/50 opacity-80 cursor-not-allowed' : 'dt-input text-right font-medium'"></currency-input></td>
                                     <td class="px-3 py-2"><currency-input v-model="day.single" :is-disabled="day.isLocked"
                                             :custom-class="day.isLocked ? 'dt-input text-right bg-gray-100/50 opacity-80 cursor-not-allowed' : 'dt-input text-right'"></currency-input></td>
-                                    <td class="px-2 py-2 text-center text-[10px] min-w-[130px]">
-                                        <div v-if="!day.isLocked" class="flex flex-col gap-1.5 items-center bg-gray-50/80 p-1.5 rounded border border-gray-200/80 shadow-sm">
-                                            <input type="text" v-model="day.lockedBy" placeholder="Your Name" class="w-full text-[10px] border border-gray-300 rounded px-1.5 py-1 outline-none focus:border-dt-orange bg-white shadow-inner font-medium text-gray-700" />
-                                            <input type="password" v-model="day.lockPassword" placeholder="Password" class="w-full text-[10px] border border-gray-300 rounded px-1.5 py-1 outline-none focus:border-dt-orange bg-white shadow-inner" />
-                                            <button @click="lockDay(index)" :disabled="!day.lockedBy || !day.lockPassword" class="w-full bg-dt-orange text-white font-bold py-1.5 rounded shadow-sm disabled:opacity-50 disabled:cursor-not-allowed text-[9px] uppercase tracking-wider transition-all transform hover:-translate-y-0.5 hover:shadow-md active:translate-y-0">Lock</button>
-                                        </div>
-                                        <div v-else class="flex flex-col gap-1 items-center justify-center bg-green-50/80 p-2 rounded border border-green-200 shadow-inner h-full">
-                                            <span class="font-extrabold text-green-700 text-[10px] whitespace-nowrap tracking-wide">🔒 {{ day.lockedBy }}</span>
-                                            <button @click="unlockDay(index)" class="mt-1 text-[9px] text-gray-500 hover:text-red-600 font-bold uppercase tracking-widest transition-colors hover:bg-white px-2 py-0.5 rounded border border-transparent hover:border-red-200">Unlock</button>
-                                        </div>
-                                    </td>
-                                    <td class="px-3 py-2"><currency-input v-model="day.vehicle"
+                                    <td class="px-3 py-2"><currency-input v-model="day.child" :is-disabled="day.isLocked"
+                                            :custom-class="day.isLocked ? 'dt-input text-right bg-gray-100/50 opacity-80 cursor-not-allowed' : 'dt-input text-right'"></currency-input></td>
+                                    <td class="px-3 py-2"><currency-input v-model="day.vehicle" @blur="propagate(index, 'vehicle', day.vehicle)"
                                             :custom-class="'dt-input text-right'"></currency-input></td>
-                                    <td class="px-3 py-2"><currency-input v-model="day.guideFee"
+                                    <td class="px-3 py-2"><currency-input v-model="day.guideFee" @blur="propagate(index, 'guideFee', day.guideFee)"
                                             :custom-class="'dt-input text-right'"></currency-input></td>
-                                    <td class="px-3 py-2"><currency-input v-model="day.guideAcc"
+                                    <td class="px-3 py-2"><currency-input v-model="day.guideAcc" @blur="propagate(index, 'guideAcc', day.guideAcc)"
+                                            :custom-class="'dt-input text-right'"></currency-input></td>
+                                    <td class="px-3 py-2"><currency-input v-model="day.flights"
                                             :custom-class="'dt-input text-right'"></currency-input></td>
                                     <td class="px-2 py-2 text-red-400 hover:text-red-600 cursor-pointer text-center font-bold"
                                         @click="removeDay(index)">✕</td>
@@ -462,10 +574,17 @@
                                             singlePax }} Pax Total:
                                             <span class="text-gray-700">{{format(storeTotals.single * singlePax)}}</span></span>
                                     </td>
-                                    <td></td>
+                                    <td class="px-3 py-4 text-right">
+                                        {{ format(storeTotals.child || 0) }}<br>
+                                        <span v-if="childPax > 0"
+                                            class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{
+                                            childPax }} Pax Total:
+                                            <span class="text-gray-700">{{format((storeTotals.child || 0) * childPax)}}</span></span>
+                                    </td>
                                     <td class="px-3 py-4 text-right text-gray-700">{{ format(storeTotals.vehicle) }}</td>
                                     <td class="px-3 py-4 text-right text-gray-700">{{ format(storeTotals.guideFee) }}</td>
                                     <td class="px-3 py-4 text-right text-gray-700">{{ format(storeTotals.guideAcc) }}</td>
+                                    <td class="px-3 py-4 text-right text-gray-700">{{ format(storeTotals.flights) }}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -474,88 +593,88 @@
                 </div>
 
                 <!-- Logistics & Extras -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div
-                        class="bg-white rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 p-6 flex flex-col justify-between">
-                        <div>
-                            <h2 class="text-lg font-bold text-gray-900 mb-6 font-heading">Fuel & Distance</h2>
-                            <div class="grid grid-cols-2 gap-5">
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Distance (km)</label>
-                                    <input type="number" v-model.number="fuelDistance"
-                                        class="dt-input text-lg font-bold">
-                                </div>
-                                <div class="flex flex-col gap-1.5">
-                                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Consume Type</label>
-                                    <select v-model="fuelType" class="dt-input h-full">
-                                        <option value="low">Low (3.125 N$/km)</option>
-                                        <option value="high">High (4.00 N$/km)</option>
-                                    </select>
-                                </div>
+                <div id="step-4-fuel" v-show="activeSection === 'step-4-fuel'"
+                    class="bg-white rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-900 mb-6 font-heading">Fuel & Distance</h2>
+                        <div class="grid grid-cols-2 gap-5">
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Distance (km)</label>
+                                <input type="number" v-model.number="fuelDistance"
+                                    class="dt-input text-lg font-bold">
                             </div>
-                        </div>
-                        <div
-                            class="mt-8 pt-5 border-t border-gray-100 flex justify-between items-center bg-[#F9FAFB] p-4 rounded-xl shadow-inner border border-gray-200/50">
-                            <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Calculated
-                                Fuel</span>
-                            <span class="font-black text-2xl text-dt-orange">{{ format(calculatedFuel) }}</span>
+                            <div class="flex flex-col gap-1.5">
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Consume Type</label>
+                                <select v-model="fuelType" class="dt-input h-full">
+                                    <option value="low">Low (3.125 N$/km)</option>
+                                    <option value="high">High (4.00 N$/km)</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-
                     <div
-                        class="bg-white rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 p-6 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-center mb-5">
-                                <h2 class="text-lg font-bold text-gray-900 font-heading">Activities</h2>
-                                <button @click="addActivity"
-                                    class="text-[10px] font-bold text-white bg-gray-900 hover:bg-black px-3 py-1.5 rounded uppercase tracking-wider btn-premium">+
-                                    Add</button>
-                            </div>
-                            <div class="space-y-2 max-h-40 overflow-y-auto">
-                                <div v-for="(act, index) in activities" :key="index"
-                                    class="flex gap-2 items-center bg-white p-2 border border-gray-100 rounded-lg">
-                                    <input type="text" v-model="act.name" placeholder="Activity Name"
-                                        class="flex-1 dt-input text-xs">
-                                    <currency-input v-model="act.rate" :custom-class="'w-20 dt-input text-xs text-right'"
-                                        placeholder="0.00"></currency-input>
-                                    <button @click="act.isPerPax = !act.isPerPax"
-                                        class="text-[9px] w-12 font-bold uppercase p-1 rounded transition border"
-                                        :class="act.isPerPax ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-500 border-gray-200'">{{
-                                        act.isPerPax ? 'PP' : 'FLAT' }}</button>
-                                    <button @click="removeActivity(index)"
-                                        class="text-red-400 hover:text-red-600 font-bold px-1 text-xs">✕</button>
-                                </div>
-                                <div v-if="activities.length === 0"
-                                    class="text-xs text-gray-400 font-medium italic p-2 text-center">No activities
-                                    added.</div>
-                            </div>
+                        class="mt-8 pt-5 border-t border-gray-100 flex justify-between items-center bg-[#F9FAFB] p-4 rounded-xl shadow-inner border border-gray-200/50">
+                        <span class="font-bold text-gray-500 uppercase text-[10px] tracking-widest">Calculated
+                            Fuel</span>
+                        <span class="font-black text-2xl text-dt-orange">{{ format(calculatedFuel) }}</span>
+                    </div>
+                </div>
+
+                <div id="step-5-activities" v-show="activeSection === 'step-5-activities'"
+                    class="bg-white rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-5">
+                            <h2 class="text-lg font-bold text-gray-900 font-heading">Activities</h2>
+                            <button @click="addActivity"
+                                class="text-[10px] font-bold text-white bg-gray-900 hover:bg-black px-3 py-1.5 rounded uppercase tracking-wider btn-premium">+
+                                Add</button>
                         </div>
-                        <div class="mt-6 border-t border-gray-100 pt-5">
-                            <div class="flex justify-between items-center mb-5">
-                                <h2 class="text-lg font-bold text-gray-900 font-heading">Other Extras</h2>
-                                <button @click="addExtra"
-                                    class="text-[10px] font-bold text-white bg-gray-900 hover:bg-black px-3 py-1.5 rounded uppercase tracking-wider btn-premium">+
-                                    Add</button>
+                        <div class="space-y-2 max-h-[400px] overflow-y-auto">
+                            <div v-for="(act, index) in activities" :key="index"
+                                class="flex gap-2 items-center bg-white p-2 border border-gray-100 rounded-lg">
+                                <input type="text" v-model="act.name" placeholder="Activity Name"
+                                    class="flex-1 dt-input text-xs">
+                                <currency-input v-model="act.rate" :custom-class="'w-24 dt-input text-xs text-right'"
+                                    placeholder="0.00"></currency-input>
+                                <button @click="act.isPerPax = !act.isPerPax"
+                                    class="text-[9px] w-12 font-bold uppercase p-1 rounded transition border"
+                                    :class="act.isPerPax ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-500 border-gray-200'">{{
+                                    act.isPerPax ? 'PP' : 'FLAT' }}</button>
+                                <button @click="removeActivity(index)"
+                                    class="text-red-400 hover:text-red-600 font-bold px-1 text-xs">✕</button>
                             </div>
-                            <div class="space-y-2 max-h-40 overflow-y-auto">
-                                <div v-for="(ext, index) in extras" :key="index"
-                                    class="flex gap-2 items-center bg-white p-2 border border-gray-100 rounded-lg">
-                                    <input type="text" v-model="ext.name" placeholder="Extra Name (e.g. Extra Transfer)"
-                                        class="flex-1 dt-input text-xs font-medium">
-                                    <currency-input v-model="ext.rate"
-                                        :custom-class="'w-20 dt-input text-xs text-right font-medium'"
-                                        placeholder="0.00"></currency-input>
-                                    <button @click="ext.isPerPax = !ext.isPerPax"
-                                        class="text-[9px] w-10 font-bold uppercase p-1 rounded transition border"
-                                        :class="ext.isPerPax ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-500 border-gray-200'">{{
-                                        ext.isPerPax ? 'PP' : 'FLAT' }}</button>
-                                    <button @click="removeExtra(index)"
-                                        class="text-red-400 hover:text-red-600 font-bold px-1 text-xs">✕</button>
-                                </div>
-                                <div v-if="extras.length === 0"
-                                    class="text-xs text-gray-400 font-medium italic p-2 text-center">No extras added.
-                                </div>
-                            </div>
+                            <div v-if="activities.length === 0"
+                                class="text-xs text-gray-400 font-medium italic p-2 text-center">No activities
+                                added.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-6-extras" v-show="activeSection === 'step-6-extras'"
+                    class="bg-white rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 p-6 flex flex-col justify-between">
+                    <div class="flex justify-between items-center mb-5">
+                        <h2 class="text-lg font-bold text-gray-900 font-heading">Other Extras</h2>
+                        <button @click="addExtra"
+                            class="text-[10px] font-bold text-white bg-gray-900 hover:bg-black px-3 py-1.5 rounded uppercase tracking-wider btn-premium">+
+                            Add</button>
+                    </div>
+                    <div class="space-y-2 max-h-[400px] overflow-y-auto">
+                        <div v-for="(ext, index) in extras" :key="index"
+                            class="flex gap-2 items-center bg-white p-2 border border-gray-100 rounded-lg">
+                            <input type="text" v-model="ext.name" placeholder="Extra Name (e.g. Extra Transfer)"
+                                class="flex-1 dt-input text-xs font-medium">
+                            <currency-input v-model="ext.rate"
+                                :custom-class="'w-24 dt-input text-xs text-right font-medium'"
+                                placeholder="0.00"></currency-input>
+                            <button @click="ext.isPerPax = !ext.isPerPax"
+                                class="text-[9px] w-10 font-bold uppercase p-1 rounded transition border"
+                                :class="ext.isPerPax ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-gray-50 text-gray-500 border-gray-200'">{{
+                                ext.isPerPax ? 'PP' : 'FLAT' }}</button>
+                            <button @click="removeExtra(index)"
+                                class="text-red-400 hover:text-red-600 font-bold px-1 text-xs">✕</button>
+                        </div>
+                        <div v-if="extras.length === 0"
+                            class="text-xs text-gray-400 font-medium italic p-2 text-center">No extras added.
                         </div>
                     </div>
                 </div>
@@ -564,11 +683,11 @@
             </div>
 
             <!-- RIGHT SIDEBAR: FINAL INVOICING -->
-            <div class="w-full xl:w-[32%] relative flex flex-col gap-6 xl:sticky xl:top-4 z-40 pb-8">
+            <div class="w-full relative flex flex-col gap-6 z-40 pb-8">
 
                 <!-- Botswana Block Moved Above -->
-                <div
-                    class="flex flex-col gap-4 bg-white p-6 rounded-[1.25rem] shadow-[0_4px_20px_rgb(0,0,0,0.04)] border border-gray-100 border-l-[6px] border-l-dt-orange">
+                <div id="step-7-botswana" v-show="activeSection === 'step-7-botswana'"
+                    class="flex flex-col gap-4 bg-[#E2F1E8] p-6 rounded-[1.25rem] shadow-sm border border-[#d2e7d9]">
                     <label
                         class="text-sm font-black text-gray-900 uppercase tracking-widest w-full leading-tight flex items-center justify-between">
                         <div class="flex flex-col gap-1 text-[13px]">Botswana Safari
@@ -581,7 +700,7 @@
                                 placeholder="e.g. Under One Botswana...">
                         </div>
                     </label>
-                    <div class="flex gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="relative w-full">
                             <span class="absolute left-3 top-2 text-[9px] text-gray-400 font-bold uppercase tracking-widest">Sharing PP</span>
                             <currency-input v-model="botswanaDoublePP"
@@ -594,10 +713,16 @@
                                         :custom-class="'w-full pl-3 pr-4 pt-7 pb-2.5 font-black text-xl bg-[#F9FAFB] rounded-xl text-gray-900 border border-gray-200 outline-none focus:border-dt-orange focus:ring-2 focus:ring-dt-orange/20 text-right transition-all'"
                                         placeholder="0.00"></currency-input>
                         </div>
+                        <div class="relative w-full">
+                            <span class="absolute left-3 top-2 text-[9px] text-gray-400 font-bold uppercase tracking-widest">Child PP</span>
+                            <currency-input v-model="botswanaChildPP"
+                                        :custom-class="'w-full pl-3 pr-4 pt-7 pb-2.5 font-black text-xl bg-[#F9FAFB] rounded-xl text-gray-900 border border-gray-200 outline-none focus:border-dt-orange focus:ring-2 focus:ring-dt-orange/20 text-right transition-all'"
+                                        placeholder="0.00"></currency-input>
+                        </div>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-[1.25rem] shadow-[0_4px_30px_rgb(0,0,0,0.06)] border border-gray-100 overflow-hidden">
+                <div id="step-8-pricing" v-show="activeSection === 'step-8-pricing'" class="bg-white rounded-[1.25rem] shadow-[0_4px_30px_rgb(0,0,0,0.06)] border border-gray-100 overflow-hidden">
 
                     <div
                         class="bg-[#1f2937] text-white p-6 text-center relative overflow-hidden">
@@ -609,28 +734,34 @@
                     </div>
 
                     <div class="p-5 space-y-3.5 text-[13px] bg-white">
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
-                                class="text-gray-500 font-medium">Double Group <span class="text-[10px] bg-gray-100 px-1 rounded text-gray-400 ml-1">{{doublePax}}x</span></span><span
-                                class="font-bold text-gray-900">{{ format(storeTotals.group * doublePax) }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
-                                class="text-gray-500 font-medium">Single Group <span class="text-[10px] bg-gray-100 px-1 rounded text-gray-400 ml-1">{{singlePax}}x</span></span><span
-                                class="font-bold text-gray-900">{{ format(storeTotals.single * singlePax) }}</span>
+                                                <div v-for="g in paxGroups" :key="g.id" v-show="parseInt(g.double) > 0 || parseInt(g.single) > 0 || parseInt(g.child) > 0" class="flex justify-between items-center border-b border-gray-100 pb-2">
+                            <span class="text-gray-500 font-medium">{{ g.name }} 
+                                <span v-if="parseInt(g.double) > 0" class="text-[10px] bg-gray-100 px-1 rounded text-gray-500 ml-1 font-bold">{{g.double}}x DBL</span>
+                                <span v-if="parseInt(g.single) > 0" class="text-[10px] bg-gray-100 px-1 rounded text-gray-500 ml-1 font-bold">{{g.single}}x SGL</span>
+                                <span v-if="parseInt(g.child) > 0" class="text-[10px] bg-gray-100 px-1 rounded text-gray-500 ml-1 font-bold">{{g.child}}x CHD</span>
+                            </span>
+                            <span class="font-bold text-gray-900">{{ format((storeTotals.group * Math.max(0, parseInt(g.double) || 0)) + (storeTotals.single * Math.max(0, parseInt(g.single) || 0)) + (storeTotals.child * Math.max(0, parseInt(g.child) || 0))) }}</span>
                         </div>
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
+                        <div v-if="storeTotals.vehicle > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
                                 class="text-gray-500 font-medium">Vehicle Hire</span><span
                                 class="font-bold text-gray-900">{{ format(storeTotals.vehicle) }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
-                                class="text-gray-500 font-medium">Guide Acc & Fee</span><span
-                                class="font-bold text-gray-900">{{ format(storeTotals.guideFee + storeTotals.guideAcc)
-                                }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
+                        <div v-if="storeTotals.flights > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
+                                class="text-gray-500 font-medium">Flights</span><span
+                                class="font-bold text-gray-900">{{ format(storeTotals.flights) }}</span></div>
+                        <div v-if="storeTotals.guideFee > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
+                                class="text-gray-500 font-medium">Guide Fee</span><span
+                                class="font-bold text-gray-900">{{ format(storeTotals.guideFee) }}</span></div>
+                        <div v-if="storeTotals.guideAcc > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
+                                class="text-gray-500 font-medium">Guide Acc</span><span
+                                class="font-bold text-gray-900">{{ format(storeTotals.guideAcc) }}</span></div>
+                        <div v-if="calculatedFuel > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
                                 class="text-gray-500 font-medium">Fuel & Return</span><span
                                 class="font-bold text-gray-900">{{ format(calculatedFuel)
                                 }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
+                        <div v-if="activitiesTotal > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
                                 class="text-gray-500 font-medium">Activities</span><span
                                 class="font-bold text-gray-900">{{ format(activitiesTotal) }}</span></div>
-                        <div class="flex justify-between border-b border-gray-100 pb-2"><span
+                        <div v-if="extrasTotal > 0" class="flex justify-between border-b border-gray-100 pb-2"><span
                                 class="text-gray-500 font-medium">Other Extras</span><span
                                 class="font-bold text-gray-900">{{ format(extrasTotal) }}</span>
                         </div>
@@ -661,11 +792,15 @@
                                         <span class="text-gray-300 font-medium tracking-wide">Namibian ZAR/NAD Portion</span>
                                         <span class="font-bold text-white bg-white/10 border border-white/10 px-2 py-1 rounded text-xs">{{ format(stoTotal * 1.25) }}</span>
                                     </div>
-                                    <div class="flex justify-between text-xs mt-3 text-gray-400">
+                                    <div v-for="g in paxGroups" :key="g.id" v-show="(parseInt(g.double)||0)+(parseInt(g.single)||0)+(parseInt(g.child)||0) > 0" class="flex justify-between text-xs mt-3 text-gray-400">
+                                        <span class="font-medium tracking-wide">{{g.name}} Total <span class="text-[9px] ml-1">(inc. Vehicle/Guide Share)</span></span>
+                                        <span class="text-dt-orange font-bold">{{ format(groupInvoiceCost(g, 1.25)) }}</span>
+                                    </div>
+                                    <div v-if="paxGroups.length <= 1" class="flex justify-between text-xs mt-3 text-gray-400">
                                         <span class="font-medium tracking-wide">Namibian Double Sharing PP</span>
                                         <span class="text-white">{{ format(perPaxCosting.doubleStoPP * 1.25) }}</span>
                                     </div>
-                                    <div v-if="singlePax > 0"
+                                    <div v-if="singlePax > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-1.5 mb-2 text-gray-400 border-b border-white/10 pb-4">
                                         <span class="font-medium tracking-wide">Namibian Single Traveler PP</span>
                                         <span class="text-white">{{ format(perPaxCosting.singleStoPP * 1.25) }}</span>
@@ -681,12 +816,12 @@
                                         class="space-y-2 text-xs my-5 border-b border-white/10 pb-5">
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-medium">Desert Tracks (25%)</span><span class="text-white font-bold">&#36;{{ format(botswanaUsdSummary * 0.25) }}</span></div>
                                     </div>
-                                    <div v-if="botswanaUsdSummary > 0"
+                                    <div v-if="botswanaUsdSummary > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-2 text-gray-400">
                                         <span class="font-medium tracking-wide">Botswana Double Sharing PP</span>
                                         <span class="text-white">&#36;{{ format(botswanaDoublePP * 1.25) }}</span>
                                     </div>
-                                    <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
+                                    <div v-if="botswanaUsdSummary > 0 && singlePax > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-1.5 mb-2 text-gray-400 border-b border-white/10 pb-3">
                                         <span class="font-medium tracking-wide">Botswana Single Traveler PP</span>
                                         <span class="text-white">&#36;{{ format(botswanaSinglePP * 1.25) }}</span>
@@ -715,11 +850,11 @@
                                         <span class="text-gray-300 font-medium tracking-wide">Namibian ZAR/NAD Portion</span>
                                         <span class="font-bold text-white bg-white/10 border border-white/10 px-2 py-1 rounded text-xs">{{ format((stoTotal * 1.25) / 0.82) }}</span>
                                     </div>
-                                    <div class="flex justify-between text-xs mt-3 text-gray-400">
+                                    <div v-if="paxGroups.length <= 1" class="flex justify-between text-xs mt-3 text-gray-400">
                                         <span class="font-medium tracking-wide">Namibian Double Sharing PP</span>
                                         <span class="text-white">{{ format((perPaxCosting.doubleStoPP * 1.25) / 0.82) }}</span>
                                     </div>
-                                    <div v-if="singlePax > 0"
+                                    <div v-if="singlePax > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-1.5 mb-2 text-gray-400 border-b border-white/10 pb-4">
                                         <span class="font-medium tracking-wide">Namibian Single Traveler PP</span>
                                         <span class="text-white">{{ format((perPaxCosting.singleStoPP * 1.25) / 0.82) }}</span>
@@ -738,12 +873,12 @@
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-medium tracking-wide">Agent (5%)</span><span class="text-white font-bold">&#36;{{ format(botswanaUsdSummary * 0.05) }}</span></div>
                                     </div>
 
-                                    <div v-if="botswanaUsdSummary > 0"
+                                    <div v-if="botswanaUsdSummary > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-2 text-gray-400">
                                         <span class="font-medium tracking-wide">Botswana Double Sharing PP</span>
                                         <span class="text-white">&#36;{{ format((botswanaDoublePP * 1.25) / 0.82) }}</span>
                                     </div>
-                                    <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
+                                    <div v-if="botswanaUsdSummary > 0 && singlePax > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-1.5 mb-2 text-gray-400 border-b border-white/10 pb-3">
                                         <span class="font-medium tracking-wide">Botswana Single Traveler PP</span>
                                         <span class="text-white">&#36;{{ format((botswanaSinglePP * 1.25) / 0.82) }}</span>
@@ -771,11 +906,15 @@
                                         <span class="text-gray-300 font-medium tracking-wide">Namibian ZAR/NAD Portion</span>
                                         <span class="font-bold text-white bg-white/10 border border-white/10 px-2 py-1 rounded text-xs">{{ format(stoTotal * 1.25) }}</span>
                                     </div>
-                                    <div class="flex justify-between text-xs mt-3 text-gray-400">
+                                    <div v-for="g in paxGroups" :key="g.id" v-show="(parseInt(g.double)||0)+(parseInt(g.single)||0)+(parseInt(g.child)||0) > 0" class="flex justify-between text-xs mt-3 text-gray-400">
+                                        <span class="font-medium tracking-wide">{{g.name}} Total <span class="text-[9px] ml-1">(inc. Vehicle/Guide Share)</span></span>
+                                        <span class="text-dt-orange font-bold">{{ format(groupInvoiceCost(g, 1.25)) }}</span>
+                                    </div>
+                                    <div v-if="paxGroups.length <= 1" class="flex justify-between text-xs mt-3 text-gray-400">
                                         <span class="font-medium tracking-wide">Namibian Double Sharing PP</span>
                                         <span class="text-white">{{ format(perPaxCosting.doubleStoPP * 1.25) }}</span>
                                     </div>
-                                    <div v-if="singlePax > 0"
+                                    <div v-if="singlePax > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-1.5 mb-2 text-gray-400 border-b border-white/10 pb-4">
                                         <span class="font-medium tracking-wide">Namibian Single Traveler PP</span>
                                         <span class="text-white">{{ format(perPaxCosting.singleStoPP * 1.25) }}</span>
@@ -792,12 +931,12 @@
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-medium tracking-wide">Desert Tracks (20%)</span><span class="text-white font-bold">&#36;{{ format(botswanaUsdSummary * 0.20) }}</span></div>
                                         <div class="flex justify-between items-center"><span class="text-gray-400 font-medium tracking-wide">Consultant (5%)</span><span class="text-white font-bold">&#36;{{ format(botswanaUsdSummary * 0.05) }}</span></div>
                                     </div>
-                                    <div v-if="botswanaUsdSummary > 0"
+                                    <div v-if="botswanaUsdSummary > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-2 text-gray-400">
                                         <span class="font-medium tracking-wide">Botswana Double Sharing PP</span>
                                         <span class="text-white">&#36;{{ format(botswanaDoublePP * 1.25) }}</span>
                                     </div>
-                                    <div v-if="botswanaUsdSummary > 0 && singlePax > 0"
+                                    <div v-if="botswanaUsdSummary > 0 && singlePax > 0 && paxGroups.length <= 1"
                                         class="flex justify-between text-xs mt-1.5 mb-2 text-gray-400 border-b border-white/10 pb-3">
                                         <span class="font-medium tracking-wide">Botswana Single Traveler PP</span>
                                         <span class="text-white">&#36;{{ format(botswanaSinglePP * 1.25) }}</span>
@@ -812,7 +951,6 @@
 
                 </div>
             </div>
-        </div>
 
         <!-- PDF Modal -->
         <div v-if="currentPdfUrl"
@@ -830,7 +968,7 @@
 
     </div>
 
-    <script>
+    <script data-no-optimize="1">
         const { createApp } = Vue;
 
         const CurrencyInput = {
@@ -850,7 +988,20 @@
                     }
                 }
             },
-            template: `<input type="text" :class="customClass" :disabled="isDisabled" v-model="displayValue" @focus="isFocused = true; localVal = (modelValue === 0 || modelValue === null || modelValue === '') ? '' : String(modelValue)" @blur="isFocused = false" :placeholder="placeholder || '0.00'"/>`
+            methods: {
+                handleEnter(e) {
+                    const focusable = Array.from(document.querySelectorAll('input:not([disabled]):not([readonly]), select:not([disabled])'))
+                        .filter(el => el.tabIndex >= 0 && el.getBoundingClientRect().width > 0);
+                    const index = focusable.indexOf(e.target);
+                    if (index > -1 && index + 1 < focusable.length) {
+                        focusable[index + 1].focus();
+                        if (typeof focusable[index + 1].select === 'function') {
+                            focusable[index + 1].select();
+                        }
+                    }
+                }
+            },
+            template: `<input type="text" :class="customClass" :disabled="isDisabled" v-model="displayValue" @focus="isFocused = true; localVal = (modelValue === 0 || modelValue === null || modelValue === '') ? '' : String(modelValue)" @blur="isFocused = false" @keydown.enter.prevent="handleEnter" :placeholder="placeholder || '0.00'"/>`
         };
 
         const regionsDb = { "Windhoek": ["Acacia Guesthouse", "Auas Safari Lodge", "Am Weinberg Boutique Hotel", "Arebbusch Travel Lodge", "Avani Windhoek Hotel", "Belvedere Boutique Hotel", "Olive Exclusive", "Olive Grove Guesthouse", "Windhoek Country Club Resort", "Hotel Thule", "River Crossing Lodge", "Safari Court Hotel", "Safari Hotel", "Windhoek Luxury Guesthouse", "Roof of Africa Hotel", "Puccini House", "Londiningi Guesthouse", "Villa Violet Guesthouse", "The Elegant Guesthouse", "GocheGanas Nature Reserve", "Naankuse Lodge", "Duesternbrook Safari Guest Farm", "Droombos", "Heinitzburg Boutique Hotel", "Hohewarte Guestfarm", "Onjala", "Voigtland", "Windhoek Lux Suites", "Casa Blanca Boutique Hotel", "Immanuel Lodge", "Ti Melen Boutique Guesthouse", "Waldeck Namibia", "Zannier Omaanda"], "Sossusvlei": ["Sossusvlei Lodge", "Desert Camp", "Desert Quiver Camp", "Hoodia Lodge", "Moon Mountain Lodge", "Elegant Desert Lodge", "Desert Homestead Lodge", "Desert Homestead Outpost", "Le Mirage Resort & Spa", "Sossus Dune Lodge", "Wolwedans Dunes Lodge", "Kulala Desert Lodge", "Little Kulala", "Sossusvlei Desert Lodge", "Agama River Camp", "Rostock Ritz Desert Lodge", "Solitaire Desert Farm", "Solitaire Camping2go", "Agama Camping", "Sossusvlei Lodge Adventure Camp", "Desert Camp Camping", "Greenfire Desert Lodge", "Kanaan Desert Retreat", "Agama Lodge", "Barkhan Dune Retreat", "Little Sossus Lodge", "Tsauchab River Camp", "Wilderness Kulala Desert Lodge", "Sossus Oasis Campsite", "andBeyond Sossusvlei Desert Lodge", "Namib Outpost", "Elegant Desert Camp", "Desert Whisper", "Namib Dune Star Camp", "The Desert Grace", "Namib Sky Balloon Safaris", "Wolwedans Boulders Camp", "Wolwedans Plains Camp", "Wolwedans Mountain View Suite", "Kwessi Dunes", "Zannier Sonop"], "Etosha": ["Etosha Village", "Etosha Safari Lodge", "Etosha Safari Camp", "Toshari Lodge", "Etosha Gateway", "Halali Resort", "Okaukuejo Resort", "Eagle Tented Lodge", "Epacha Game Lodge", "Bambatsi Guest Farm", "Ombinda Country Lodge", "Etosha Village Camping2go", "Okutala Etosha Lodge", "Little Ongava", "Anderssons At Ongava", "Ongava Tented Camp", "Ongava Lodge", "Etosha Mopane Safari Lodge", "Safari House", "Etosha Oberland Lodge", "Safarihoek Lodge", "Mushara Lodge", "Mushara Outpost", "Mushara Villa", "Mokuti Etosha Lodge", "Onguma Bush Camp", "Onguma Tented Camp", "Onguma Tree Top", "Onguma The Fort", "Etosha King Nehale", "Namutoni Resort", "Mushara Bush Camp", "Onguma Forest Camp", "Villa Mushara", "Ongula Village Homestead Lodge"], "Central Namibia": ["Gabuse Guest House", "Khorab Safari Lodge", "Okonjima Plains Camp", "Okonjima Bush Camp", "Waterberg Plateau Lodge", "Waterberg Wilderness", "Waterberg Valley Lodge", "Mount Etjo Safari Lodge", "Frans Indongo Lodge", "Otjiwa Safari Lodge", "Epako Safari Lodge", "Erongo Plateau Camp", "Okahandja Country Hotel", "Midgard Country Estate", "Minen Hotel", "Uris Safari Lodge", "Tsumeb Guesthouse", "Otjiwarongo Guesthouse", "C'est Si Bon Hotel", "Kamaku Guesthouse", "Hadassa Guesthouse", "Casa Forno Guesthouse", "Tsumeb Guesthouse Garden", "Kupferquelle Resort", "Aloegrove Safari Lodge", "Erongo Rocks", "Gabus Safari Lodge", "Ghaub", "Ohorongo Game and Safari Lodge", "Ai Aiba Rock Painting Lodge", "Desert Dune Safari", "Etusis Lodge", "Evening Shade", "Hohenstein Lodge", "Immenhof Guest Farm", "Kashana Namibia", "Dornhuegel Guestfarm", "Gabus Game Ranch", "Haus Mopanie", "La Rochelle Lodge", "Ohange Lodge", "Okonjima Bush Suite", "Okonjima Luxury Bush Camp", "Okonjima Villa"], "Swakopmund": ["Hansa Hotel", "Strand Hotel Swakopmund", "The Delight Swakopmund", "Swakopmund Hotel", "Beach Hotel Swakopmund", "Pelican Bay Hotel", "Protea Hotel Walvis Bay", "Burning Shore Lodge", "Desert Breeze Lodge", "Hotel Pension A la Mer", "Hotel Zum Kaiser", "Sea Breeze Guesthouse", "Flamingo Villa Boutique Hotel", "Henties Bay Caravan Park", "Atlantic Villa", "Namib Guesthouse", "Organic Stay", "Oyster Box Guesthouse", "The Rez", "Pelican Point Lodge", "Cornerstone Guesthouse", "Swakopmund Sands Hotel", "Brigadoon Boutique Guesthouse"], "Skeleton Coast": ["Shipwreck Lodge", "Terrace Bay Resort", "Torra Bay Campsite", "Cape Cross Lodge", "Wilderness Hoanib Skeleton Coast Camp"], "Damaraland": ["Damaraland Camp", "Mowani Mountain Camp", "Camp Kipwe", "Grootberg Lodge", "Hoada Campsite", "Palmwag Lodge", "Twyfelfontein Country Lodge", "Doro Nawas Camp", "Vingerklip Lodge", "Huab Lodge", "Ugab Terrace Lodge", "Ondjamba Hills", "Khorixas Lodge", "iGowati Country Hotel", "Uis Elephant", "Damara Mopane Lodge", "Spitzkoppen Lodge", "Etendeka Mountain Camp", "Wilderness Doro Nawas", "Wilderness Damaraland Camp", "Wilderness Desert Rhino Camp", "Twyfelfontein Adventure Camp"], "West Etosha": ["Hobatere Lodge"], "Epupa": ["Epupa Camp", "Omarunga Epupa Falls Camp", "Kapika Waterfall Lodge"], "Kaokoland": ["Okahirongo Elephant Lodge", "Okahirongo River Camp", "Khowarib Lodge", "Sesfontein Guesthouse", "Okahirongo Elephant Lodge (Luxury)", "Purros Bush Camp", "Wilderness Serra Cafema", "Hoanib Valley Camp", "Hoanib Elephant Camp"], "Luderitz": ["Luderitz Nest Hotel", "Kairos Cottage", "Island Cottage", "Luderitz Backpackers", "Shark Island Resort", "Alte Villa 2025"], "Kalahari": ["Bagatelle Kalahari Game Ranch", "Kalahari Anib Lodge", "Kalahari Farmhouse", "Camelthorn Kalahari Lodge", "Zebra Kalahari Lodge", "Suricate Tented Kalahari Lodge", "Lapa Lange Game Lodge", "Anib Lodge", "Intu Afrika Camelthorn Lodge", "Zelda Game & Guest Farm", "Kalahari Bush Breaks", "Burgsdorf Guest Farm", "Helmeringhausen Hotel", "Namibgrens Guest Farm", "Gibeon Folk Hotel", "Duwisib Guest Farm", "Africa Safari Lodge", "Auob Country Lodge", "Kalahari Game Lodge", "Harnas Wildlife Foundation", "Terra Rouge Guest Farm", "Guest Farm Kiripotib", "Kalahari Red Dunes Lodge", "Teufelskrallen Lodge"], "Caprivi": ["Tambuti Lodge", "Kayova River Lodge", "Ngandu Safari Lodge", "Mazambala Island Lodge", "Camp Kwando", "Lianshulu Lodge", "Lianshulu Bush Lodge", "Mudumu River Camp", "Namushasha River Camping2go", "Zambezi Mubala Camping2go", "Chobe Savannah Lodge", "Impalila Island Lodge", "Ichingo Chobe River Lodge", "Shametu River Lodge", "Popa Falls Resort", "Nunda River Lodge", "Mahangu Safari Lodge", "Ndhovu Safari Lodge", "Simanya River Lodge", "White Sands Caprivi", "Susuwe Island Lodge", "Chobe River Camp", "Jackalberry Tented Camp", "Nkasa Lupala Tented Lodge", "Zambezi Queen", "Zambezi Mubala Camp", "Zambezi Mubala Lodge", "Ntunda Lodge", "Mango Guesthouse", "Hakusembe River Lodge", "Chobe Princess", "Nkasa Linyanti"], "Canyon": ["Seeheim Hotel", "Garas Park Quivertree", "Garas Park", "Seeheim Hotel (Adventure)", "Bethanie Guesthouse", "Alte Kalkofen Lodge", "Bahnhof Hotel Aus", "Nooishof", "Norotshama River Resort", "Canyon Lodge", "Canyon Roadhouse", "Fish River Lodge", "Canyon Village", "Goibib Mountain Lodge"], "Opuwo": ["Opuwo Country Lodge", "Kaoko Mopane Lodge"], "Botswana": ["Chobe Water Villas", "Camp Kuzuma", "Muchenje Safari Lodge", "Ngoma Safari Lodge", "Chobe Safari Lodge", "Chobe Marina Lodge", "Cresta Mowana Safari Resort & Spa", "Chobe Game Lodge", "Elephant Valley Lodge", "Chobe Elephant Camp"] };
@@ -863,6 +1014,7 @@
         const app = createApp({
             data() {
                 return {
+                    activeSection: 'step-1-client',
                     activeTab: 'dt',
                     clientName: '',
                     quoteLabel: '',
@@ -874,25 +1026,76 @@
                     unlockedAgents: [],
                     adminPasswords: {},
                     regions: regionsDb,
-                    numPax: 2,
-                    doublePax: 2,
-                    singlePax: 0,
+                    arrivalDate: '',
+                    globalSeason: 'low',
+                    paxGroups: [{ id: 1, name: 'Group 1', double: 2, single: 0, child: 0 }],
                     botswanaDoublePP: 0,
-                    botswanaSinglePP: 0,
+                    botswanaSinglePP: 0, botswanaChildPP: 0,
                     fuelDistance: 2000,
                     fuelType: 'low',
                     activities: [],
                     currentPdfUrl: null,
                     extras: [],
                     itinerary: [
-                        { region: 'Windhoek', lodge: 'Acacia Guesthouse', attachedPdf: null, nights: 1, pp: 3264, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0, isLocked: false, lockedBy: '', lockPassword: '' },
-                        { region: 'Sossusvlei', lodge: 'Sossusvlei Lodge', attachedPdf: null, nights: 1, pp: 7000, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0, isLocked: false, lockedBy: '', lockPassword: '' },
-                    ]
+                        { region: 'Windhoek', lodge: 'Acacia Guesthouse', attachedPdf: null, nights: 1, pp: 0, single: 0, child: 0, vehicle: 0, guideFee: 0, guideAcc: 0, flights: 0, isLocked: false, lockedBy: '', lockPassword: '', manualSeason: null },
+                        { region: 'Sossusvlei', lodge: 'Sossusvlei Lodge', attachedPdf: null, nights: 1, pp: 0, single: 0, child: 0, vehicle: 0, guideFee: 0, guideAcc: 0, flights: 0, isLocked: false, lockedBy: '', lockPassword: '', manualSeason: null },
+                    ],
+                    storedLodgeRates: {}
+                }
+            },
+                        watch: {
+                arrivalDate() { this.refreshRates(); },
+                globalSeason() { this.refreshRates(); },
+                itinerary: {
+                    deep: true,
+                    handler(newVal) {
+                        newVal.forEach((day, index) => {
+                            if (day.lodge) {
+                                const season = this.getSeason(index);
+                                if (!this.storedLodgeRates[day.lodge]) {
+                                    this.storedLodgeRates[day.lodge] = { low: { pp: 0, single: 0, child: 0 }, high: { pp: 0, single: 0, child: 0 } };
+                                }
+                                if (!this.storedLodgeRates[day.lodge].low) {
+                                    const old = { ...this.storedLodgeRates[day.lodge] };
+                                    this.storedLodgeRates[day.lodge] = { low: old, high: old };
+                                }
+                                if (day.pp > 0) this.storedLodgeRates[day.lodge][season].pp = day.pp;
+                                if (day.single > 0) this.storedLodgeRates[day.lodge][season].single = day.single;
+                                if (day.child > 0) this.storedLodgeRates[day.lodge][season].child = day.child;
+                            }
+                        });
+                    }
                 }
             },
             computed: {
+                rowDates() {
+                    if (!this.arrivalDate) return [];
+                    const dates = [];
+                    let d = new Date(this.arrivalDate);
+                    this.itinerary.forEach((day) => {
+                        dates.push(new Date(d));
+                        d.setDate(d.getDate() + (Number(day.nights) || 1));
+                    });
+                    return dates;
+                },
+                doublePax() { return this.paxGroups.reduce((s, g) => s + (parseInt(g.double) || 0), 0); },
+                singlePax() { return this.paxGroups.reduce((s, g) => s + (parseInt(g.single) || 0), 0); },
+                childPax() { return this.paxGroups.reduce((s, g) => s + (parseInt(g.child) || 0), 0); },
+                numPax() { return this.doublePax + this.singlePax + this.childPax; },
                 isPaxValid() {
-                    return (Number(this.doublePax || 0) + Number(this.singlePax || 0)) === Number(this.numPax || 0);
+                    return (Number(this.doublePax || 0) + Number(this.singlePax || 0) + Number(this.childPax || 0)) === Number(this.numPax || 0);
+                },
+                isCompleted() {
+                    return {
+                        'step-1-client': !!(this.clientName && this.arrivalDate),
+                        'step-2-pax': this.paxGroups.length > 0 && this.numPax > 0,
+                        'step-3-itinerary': this.itinerary.length > 0,
+                        'step-4-fuel': this.calculatedFuel > 0 || this.fuelDistance > 0,
+                        'step-5-activities': this.activities.length > 0,
+                        'step-6-extras': this.extras.length > 0,
+                        'step-7-botswana': this.botswanaDoublePP > 0 || this.botswanaSinglePP > 0,
+                        'step-8-pricing': true
+                    }
                 },
                 canSave() {
                     return this.agentName.trim() !== '' &&
@@ -902,7 +1105,7 @@
                         this.isPaxValid;
                 },
                 botswanaUsdSummary() {
-                    return ((this.botswanaDoublePP || 0) * Math.max(0, this.doublePax)) + ((this.botswanaSinglePP || 0) * Math.max(0, this.singlePax));
+                    return ((this.botswanaDoublePP || 0) * Math.max(0, this.doublePax)) + ((this.botswanaSinglePP || 0) * Math.max(0, this.singlePax)) + ((this.botswanaChildPP || 0) * Math.max(0, this.childPax));
                 },
                 groupedQuotes() {
                     return this.savedQuotes.reduce((acc, quote, index) => {
@@ -937,13 +1140,13 @@
                     };
                 },
                 storeTotals() {
-                    let group = 0, single = 0, vehicle = 0, guideFee = 0, guideAcc = 0;
+                    let group = 0, single = 0, child = 0, vehicle = 0, guideFee = 0, guideAcc = 0, flights = 0;
                     this.itinerary.forEach(d => {
                         let n = parseInt(d.nights) || 1;
-                        group += (d.pp || 0) * n; single += (d.single || 0) * n;
-                        vehicle += (d.vehicle || 0) * n; guideFee += (d.guideFee || 0) * n; guideAcc += (d.guideAcc || 0) * n;
+                        group += (d.pp || 0) * n; single += (d.single || 0) * n; child += (d.child || 0) * n;
+                        vehicle += (d.vehicle || 0) * n; guideFee += (d.guideFee || 0) * n; guideAcc += (d.guideAcc || 0) * n; flights += (d.flights || 0) * n;
                     });
-                    return { group, single, vehicle, guideFee, guideAcc };
+                    return { group, single, child, vehicle, guideFee, guideAcc, flights };
                 },
                 uploadedLodges() {
                     return this.itinerary.filter(d => d.attachedPdf && d.lodge).map(d => d.lodge);
@@ -959,12 +1162,19 @@
                         return sum + (ext.isPerPax ? (ext.rate * Math.max(1, this.numPax)) : ext.rate);
                     }, 0);
                 },
+                sharedCostsTotal() {
+                    const t = this.storeTotals;
+                    return t.vehicle + t.guideFee + t.guideAcc + t.flights + this.calculatedFuel + this.extrasTotal + this.activitiesTotal;
+                },
                 stoTotal() {
                     const t = this.storeTotals;
                     let total = 0;
-                    total += (t.group * Math.max(0, this.numPax));
-                    total += (t.single * Math.max(0, this.singlePax));
-                    total += t.vehicle + t.guideFee + t.guideAcc;
+                    this.paxGroups.forEach(g => {
+                        total += (t.group * Math.max(0, parseInt(g.double) || 0));
+                        total += (t.single * Math.max(0, parseInt(g.single) || 0));
+                        total += (t.child * Math.max(0, parseInt(g.child) || 0));
+                    });
+                    total += t.vehicle + t.guideFee + t.guideAcc + t.flights;
                     total += this.calculatedFuel + this.extrasTotal;
                     total += this.activitiesTotal;
                     // Note: botswanaUsd is NOT added here anymore to keep it unmixed.
@@ -972,6 +1182,21 @@
                 }
             },
             mounted() {
+                // Global enter-to-jump logic
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const target = e.target;
+                        if (target.tagName.toLowerCase() === 'input' || target.tagName.toLowerCase() === 'textarea') {
+                            e.preventDefault();
+                            const inputs = Array.from(document.querySelectorAll('input:not([disabled]), textarea:not([disabled]), [contenteditable="true"]'));
+                            const index = inputs.indexOf(target);
+                            if (index > -1 && index < inputs.length - 1) {
+                                inputs[index + 1].focus();
+                                if(inputs[index + 1].select) inputs[index + 1].select();
+                            }
+                        }
+                    }
+                });
                 window.addEventListener('message', (event) => {
                     if (event.data && event.data.type === 'SAVE_DT_INVOICE') {
                         const { idx, name, html } = event.data;
@@ -986,7 +1211,7 @@
                 });
             },
             methods: {
-                handleLodgeChange(day) {
+                handleLodgeChange(day, index) {
                     if (day.lodge === '__custom__') {
                         const customName = prompt("Enter the name of the new custom lodge:");
                         if (customName && customName.trim() !== '') {
@@ -1000,8 +1225,75 @@
                             day.lodge = '';
                         }
                     }
+                    if (day.lodge && day.lodge !== '') {
+                        this.onLodgeSelect(day, index);
+                    }
                 },
-                addDay() { this.itinerary.push({ region: '', lodge: '', attachedPdf: null, nights: 1, pp: 0, single: 0, vehicle: 2500, guideFee: 0, guideAcc: 0, isLocked: false, lockedBy: '', lockPassword: '' }); },
+                               propagate(index, field, value) {
+                    // "once in the fisrt lodge line a vehicle and guide fee was added it must be added automatacly in eache following line"
+                    if (index === 0) {
+                        for (let i = 1; i < this.itinerary.length; i++) {
+                            this.itinerary[i][field] = value;
+                        }
+                    }
+                },
+                getSeason(index) {
+                    const day = this.itinerary[index];
+                    if (day && day.manualSeason) return day.manualSeason;
+                    if (this.arrivalDate && this.rowDates[index]) {
+                        const month = this.rowDates[index].getMonth() + 1;
+                        return (month >= 7 && month <= 10) ? 'high' : 'low';
+                    }
+                    return this.globalSeason || 'low';
+                },
+                toggleManualSeason(day, index) {
+                    const current = this.getSeason(index);
+                    day.manualSeason = current === 'high' ? 'low' : 'high';
+                    this.refreshRates();
+                },
+                refreshRates() {
+                    this.itinerary.forEach((day, i) => {
+                        if (day.lodge) {
+                            const season = this.getSeason(i);
+                            const lr = this.storedLodgeRates[day.lodge];
+                            if (lr && lr[season]) {
+                                day.pp = lr[season].pp || 0;
+                                day.single = lr[season].single || 0;
+                                day.child = lr[season].child || 0;
+                            }
+                        }
+                    });
+                },
+                onLodgeSelect(day, index) {
+                    const season = this.getSeason(index);
+                    const lodgeData = this.storedLodgeRates[day.lodge];
+                    if (lodgeData && lodgeData[season]) {
+                        const rates = lodgeData[season];
+                        if (!day.pp) day.pp = rates.pp || 0;
+                        if (!day.single) day.single = rates.single || 0;
+                        if (!day.child) day.child = rates.child || 0;
+                    }
+                },
+                groupInvoiceCost(g, markupDecimal) {
+                    const t = this.storeTotals;
+                    const gAccommodation = (t.group * Math.max(0, parseInt(g.double) || 0)) +
+                                        (t.single * Math.max(0, parseInt(g.single) || 0)) +
+                                        (t.child * Math.max(0, parseInt(g.child) || 0));
+                    
+                    const gPax = Math.max(0, parseInt(g.double) || 0) + Math.max(0, parseInt(g.single) || 0) + Math.max(0, parseInt(g.child) || 0);
+
+                    const shareOfSharedCosts = gPax > 0 ? (this.sharedCostsTotal / Math.max(1, this.numPax)) * gPax : 0;
+                    
+                    return (gAccommodation + shareOfSharedCosts) * markupDecimal;
+                },
+                addGroup() {
+                    const maxId = this.paxGroups.reduce((max, g) => Math.max(max, g.id), 0);
+                    this.paxGroups.push({ id: maxId + 1, name: `Group ${maxId + 1}`, double: 2, single: 0, child: 0 });
+                },
+                removeGroup(index) {
+                    this.paxGroups.splice(index, 1);
+                },
+                addDay() { this.itinerary.push({ region: '', lodge: '', attachedPdf: null, nights: 1, pp: 0, single: 0, child: 0, vehicle: this.itinerary.length > 0 ? this.itinerary[0].vehicle : 0, guideFee: this.itinerary.length > 0 ? this.itinerary[0].guideFee : 0, guideAcc: this.itinerary.length > 0 ? this.itinerary[0].guideAcc : 0, flights: 0, isLocked: false, lockedBy: '', lockPassword: '', manualSeason: null }); },
                 removeDay(index) { this.itinerary.splice(index, 1); },
                 addActivity() { this.activities.push({ name: '', rate: 0, isPerPax: true }); },
                 removeActivity(index) { this.activities.splice(index, 1); },
@@ -1055,9 +1347,7 @@
                         quoteLabel: this.quoteLabel,
                         agentName: this.agentName,
                         botswanaSupplier: this.botswanaSupplier,
-                        numPax: this.numPax,
-                        doublePax: this.doublePax,
-                        singlePax: this.singlePax,
+                        paxGroups: JSON.parse(JSON.stringify(this.paxGroups)),
                         botswanaDoublePP: this.botswanaDoublePP,
                         botswanaSinglePP: this.botswanaSinglePP,
                         fuelDistance: this.fuelDistance,
@@ -1086,6 +1376,7 @@
                     this.numPax = quote.numPax;
                     this.doublePax = quote.doublePax !== undefined ? quote.doublePax : quote.numPax;
                     this.singlePax = quote.singlePax !== undefined ? quote.singlePax : 0;
+                    this.childPax = quote.childPax !== undefined ? quote.childPax : 0;
                     this.botswanaDoublePP = quote.botswanaDoublePP !== undefined ? quote.botswanaDoublePP : (quote.botswanaUsd || 0);
                     this.botswanaSinglePP = quote.botswanaSinglePP || 0;
                     this.fuelDistance = quote.fuelDistance;
@@ -1100,6 +1391,10 @@
                     setTimeout(() => {
                         this.exportDocument(index, 'costing');
                     }, 150);
+                },
+                scrollTo(id) {
+                    this.activeSection = id;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 },
                 downloadCustomInvoice(quoteIndex, invoiceIndex) {
                     const quote = this.savedQuotes.find(q => q.originalIndex === quoteIndex);
@@ -1117,10 +1412,11 @@
                     const q = this.savedQuotes[index];
                     const format = (val) => Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-                    let group = 0, single = 0, vehicle = 0, guideFee = 0, guideAcc = 0;
+                    let group = 0, single = 0, child = 0, vehicle = 0, guideFee = 0, guideAcc = 0, flights = 0;
                     q.itinerary.forEach(d => {
-                        group += (d.pp || 0); single += (d.single || 0);
-                        vehicle += (d.vehicle || 0); guideFee += (d.guideFee || 0); guideAcc += (d.guideAcc || 0);
+                        let n = parseInt(d.nights) || 1;
+                        group += (d.pp || 0) * n; single += (d.single || 0) * n; child += (d.child || 0) * n;
+                        vehicle += (d.vehicle || 0) * n; guideFee += (d.guideFee || 0) * n; guideAcc += (d.guideAcc || 0) * n; flights += (d.flights || 0) * n;
                     });
                     const calcFuel = (q.fuelDistance || 0) * (q.fuelType === 'low' ? 3.125 : 4.0);
                     const activitiesTotal = q.activities.reduce((sum, act) => sum + (act.isPerPax ? (act.rate * Math.max(1, q.numPax)) : act.rate), 0);
@@ -1130,8 +1426,9 @@
 
                     const doubleStoPP = group + sharedPP;
                     const singleStoPP = group + single + sharedPP;
+                    const childStoPP = child + sharedPP;
 
-                    let stoTotal = (doubleStoPP * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)) + (singleStoPP * Math.max(0, q.singlePax || 0));
+                    let stoTotal = (doubleStoPP * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)) + (singleStoPP * Math.max(0, q.singlePax || 0)) + (childStoPP * Math.max(0, q.childPax || 0));
 
                     const dtTotal = stoTotal * 1.25;
                     const tlTotal = dtTotal / 0.82;
@@ -1166,7 +1463,7 @@
 <head>
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Desert Tracks Estimate - ${q.clientName}</title>
-    <style>
+    <style data-no-optimize="1">
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700&family=Open+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Open Sans', sans-serif; background-color: #f4f4f5; padding: 40px 20px; color: #18181b; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 50px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
@@ -1308,7 +1605,7 @@
                 </tr>
             </table>
 
-            <script>
+            <script data-no-optimize="1">
                 document.addEventListener('DOMContentLoaded', () => {
                     const parseCurrency = (str) => Number((str || '').replace(/[^0-9.-]+/g, ''));
                     const formatCurrency = (val) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1409,34 +1706,46 @@
             <th>Cost Component</th>
             <th style="text-align: right;">Total (NAD)</th>
         </tr>
-        <tr>
-            <td style="color: #71717a;">Base Group Accommodation (${Math.max(0, q.numPax)}x)</td>
-            <td style="text-align: right; font-weight: 500;">${format(group * Math.max(0, q.numPax))}</td>
-        </tr>
-        <tr>
+        ${group > 0 ? `<tr>
+            <td style="color: #71717a;">Base Group Accommodation (${Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax)}x)</td>
+            <td style="text-align: right; font-weight: 500;">${format(group * Math.max(0, q.doublePax !== undefined ? q.doublePax : q.numPax))}</td>
+        </tr>` : ''}
+        ${single > 0 ? `<tr>
             <td style="color: #71717a;">Single Supplements (${Math.max(0, q.singlePax || 0)}x)</td>
             <td style="text-align: right; font-weight: 500;">${format(single * Math.max(0, q.singlePax || 0))}</td>
-        </tr>
-        <tr>
+        </tr>` : ''}
+        ${child > 0 ? `<tr>
+            <td style="color: #71717a;">Child Supplements (${Math.max(0, q.childPax || 0)}x)</td>
+            <td style="text-align: right; font-weight: 500;">${format(child * Math.max(0, q.childPax || 0))}</td>
+        </tr>` : ''}
+        ${vehicle > 0 ? `<tr>
             <td style="color: #71717a;">Vehicle Hire</td>
             <td style="text-align: right; font-weight: 500;">${format(vehicle)}</td>
-        </tr>
-        <tr>
-            <td style="color: #71717a;">Guide Acc & Fee</td>
-            <td style="text-align: right; font-weight: 500;">${format(guideFee + guideAcc)}</td>
-        </tr>
-        <tr>
+        </tr>` : ''}
+        ${flights > 0 ? `<tr>
+            <td style="color: #71717a;">Flights</td>
+            <td style="text-align: right; font-weight: 500;">${format(flights)}</td>
+        </tr>` : ''}
+        ${guideFee > 0 ? `<tr>
+            <td style="color: #71717a;">Guide Fee</td>
+            <td style="text-align: right; font-weight: 500;">${format(guideFee)}</td>
+        </tr>` : ''}
+        ${guideAcc > 0 ? `<tr>
+            <td style="color: #71717a;">Guide Accommodation</td>
+            <td style="text-align: right; font-weight: 500;">${format(guideAcc)}</td>
+        </tr>` : ''}
+        ${calcFuel > 0 ? `<tr>
             <td style="color: #71717a;">Fuel & Distance (${q.fuelDistance} km)</td>
             <td style="text-align: right; font-weight: 500;">${format(calcFuel)}</td>
-        </tr>
-        <tr>
+        </tr>` : ''}
+        ${activitiesTotal > 0 ? `<tr>
             <td style="color: #71717a;">Activities Total</td>
             <td style="text-align: right; font-weight: 500;">${format(activitiesTotal)}</td>
-        </tr>
-        <tr>
+        </tr>` : ''}
+        ${extTot > 0 ? `<tr>
             <td style="color: #71717a;">Other Extras Total</td>
             <td style="text-align: right; font-weight: 500;">${format(extTot)}</td>
-        </tr>
+        </tr>` : ''}
         ${qBotsTotal > 0 ? `<tr>
             <td style="color: #d87a4d; font-weight: bold;">Botswana STO Base (USD)</td>
             <td style="text-align: right; font-weight: bold; color: #d87a4d;">$${format(qBotsTotal)}</td>
