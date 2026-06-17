@@ -521,17 +521,34 @@
                                             <option value="">Select Region...</option>
                                             <option v-for="r in Object.keys(regions)" :key="r" :value="r">{{r}}</option>
                                         </select>
-                                        <select v-model="day.lodge" :disabled="!day.region"
-                                            @change="handleLodgeChange(day, index)" class="dt-input text-xs font-medium"
+                                        <button type="button" :disabled="!day.region"
+                                            @click="openLodgeMenu(index, $event)"
+                                            class="dt-input text-xs font-medium w-full flex items-center justify-between gap-2 text-left disabled:opacity-50 disabled:cursor-not-allowed"
                                             :class="{'text-[#4f7d6e] bg-[#e8f2ee] border-[#c9e0d8] font-bold': day.attachedPdf}">
-                                            <option value="">Select Lodge...</option>
-                                            <option v-for="l in regions[day.region] || []" :key="l" :value="l"
-                                                :class="uploadedLodges.includes(l) ? 'text-[#4f7d6e] font-bold bg-[#e8f2ee]' : (hasRateSheet(l) ? 'text-[#8a6f48] font-bold' : '')">
-                                                {{l}}{{ hasRateSheet(l) ? ' ✦' : '' }}{{ uploadedLodges.includes(l) ? ' ✓' : '' }}
-                                            </option>
-                                            <option value="__custom__" class="font-bold text-dt-orange">+ Add Custom
-                                                Lodge...</option>
-                                        </select>
+                                            <span class="flex items-center gap-1.5 truncate">
+                                                <span v-if="lodgeDotColor(day)" class="inline-block w-2 h-2 rounded-full shrink-0" :class="{'animate-pulse': day.availState === 'checking'}" :style="{ background: lodgeDotColor(day) }" :title="availTitle(day)"></span>
+                                                <span class="truncate" :class="{'text-gray-400': !day.lodge}">{{ day.lodge || 'Select Lodge...' }}</span>
+                                            </span>
+                                            <span class="text-gray-400 shrink-0 text-[9px]">▼</span>
+                                        </button>
+                                        <teleport to="body">
+                                            <div v-if="lodgeMenu.row === index">
+                                                <div @click="closeLodgeMenu" class="fixed inset-0 z-[998]"></div>
+                                                <div class="nb-lodge-menu fixed z-[999] bg-white border border-[#e3ddd2] rounded-[5px] shadow-xl max-h-72 overflow-y-auto py-1"
+                                                    :style="{ top: lodgeMenu.top + 'px', left: lodgeMenu.left + 'px', width: lodgeMenu.width + 'px' }">
+                                                    <div @click="chooseLodge(day, index, '')" class="px-3 py-1.5 text-xs text-gray-400 cursor-pointer hover:bg-gray-50">Select Lodge...</div>
+                                                    <div v-for="l in regions[day.region] || []" :key="l" @click="chooseLodge(day, index, l)"
+                                                        class="px-3 py-1.5 text-xs cursor-pointer hover:bg-[#f5f1ea] flex items-center justify-between gap-2">
+                                                        <span class="truncate" :class="uploadedLodges.includes(l) ? 'text-[#4f7d6e] font-bold' : 'text-[#2b2723]'">{{ l }}</span>
+                                                        <span class="flex items-center gap-1 shrink-0">
+                                                            <span v-if="hasLocalSheet(l)" class="inline-block w-2 h-2 rounded-full" style="background:#8fc4b2"></span>
+                                                            <span v-if="uploadedLodges.includes(l)" class="text-[#4f7d6e] text-[10px] font-bold">✓</span>
+                                                        </span>
+                                                    </div>
+                                                    <div @click="chooseLodge(day, index, '__custom__')" class="px-3 py-1.5 text-xs font-bold text-dt-orange cursor-pointer hover:bg-gray-50 border-t border-gray-100">+ Add Custom Lodge...</div>
+                                                </div>
+                                            </div>
+                                        </teleport>
                                     </td>
                                     <td class="px-2 py-2 text-center text-[10px]">
                                         <div v-if="day.attachedPdf"
@@ -545,13 +562,6 @@
                                                 <button @click="removeRowPricelist(index)"
                                                     class="font-bold text-red-600 bg-red-100 px-2 py-1 rounded hover:bg-red-200 transition border border-red-200">✕</button>
                                             </div>
-                                        </div>
-                                        <div v-else-if="hasRateSheet(day.lodge)">
-                                            <button @click="openRateSheet(day.lodge)"
-                                                title="Open this lodge's rate sheet in a new tab"
-                                                class="block w-full py-1.5 px-1 rounded-[5px] font-bold uppercase tracking-wider transition-colors border bg-[#faf3e8] text-[#8a6f48] border-[#e3cda7] hover:bg-[#f3e6d0] cursor-pointer">
-                                                ✦ View Rates
-                                            </button>
                                         </div>
                                         <div v-else>
                                             <label
@@ -1052,7 +1062,7 @@
             template: `<input type="text" :class="customClass" :disabled="isDisabled" v-model="displayValue" @focus="isFocused = true; localVal = (modelValue === 0 || modelValue === null || modelValue === '') ? '' : String(modelValue)" @blur="isFocused = false" :placeholder="placeholder || '0.00'"/>`
         };
 
-        const regionsDb = {"Windhoek": ["Acacia Guesthouse", "Auas Safari Lodge", "Am Weinberg Boutique Hotel", "Arebbusch Travel Lodge", "Avani Windhoek Hotel", "Belvedere Boutique Hotel", "Olive Exclusive", "Olive Grove Guesthouse", "Windhoek Country Club Resort", "Hotel Thule", "River Crossing Lodge", "Safari Court Hotel", "Safari Hotel", "Windhoek Luxury Guesthouse", "Roof of Africa Hotel", "Puccini House", "Londiningi Guesthouse", "Villa Violet Guesthouse", "The Elegant Guesthouse", "GocheGanas Nature Reserve", "Naankuse Lodge", "Duesternbrook Safari Guest Farm", "Droombos", "Heinitzburg Boutique Hotel", "Hohewarte Guestfarm", "Onjala", "Voigtland", "Windhoek Lux Suites", "Casa Blanca Boutique Hotel", "Immanuel Lodge", "Ti Melen Boutique Guesthouse", "Waldeck Namibia", "Zannier Omaanda"], "Sossusvlei": ["Sossusvlei Lodge", "Desert Camp", "Desert Quiver Camp", "Hoodia Lodge", "Moon Mountain Lodge", "Elegant Desert Lodge", "Desert Homestead Lodge", "Desert Homestead Outpost", "Le Mirage Resort & Spa", "Sossus Dune Lodge", "Wolwedans Dunes Lodge", "Kulala Desert Lodge", "Little Kulala", "Sossusvlei Desert Lodge", "Agama River Camp", "Rostock Ritz Desert Lodge", "Solitaire Desert Farm", "Solitaire Camping2go", "Agama Camping", "Sossusvlei Lodge Adventure Camp", "Desert Camp Camping", "Greenfire Desert Lodge", "Kanaan Desert Retreat", "Agama Lodge", "Barkhan Dune Retreat", "Little Sossus Lodge", "Tsauchab River Camp", "Wilderness Kulala Desert Lodge", "Sossus Oasis Campsite", "andBeyond Sossusvlei Desert Lodge", "Namib Outpost", "Elegant Desert Camp", "Desert Whisper", "Namib Dune Star Camp", "The Desert Grace", "Namib Sky Balloon Safaris", "Wolwedans Boulders Camp", "Wolwedans Plains Camp", "Wolwedans Mountain View Suite", "Kwessi Dunes", "Zannier Sonop"], "Swakopmund": ["Hansa Hotel", "Strand Hotel Swakopmund", "The Delight Swakopmund", "Swakopmund Hotel", "Beach Hotel Swakopmund", "Pelican Bay Hotel", "Protea Hotel Walvis Bay", "Burning Shore Lodge", "Desert Breeze Lodge", "Hotel Pension A la Mer", "Hotel Zum Kaiser", "Sea Breeze Guesthouse", "Flamingo Villa Boutique Hotel", "Henties Bay Caravan Park", "Atlantic Villa", "Namib Guesthouse", "Organic Stay", "Oyster Box Guesthouse", "The Rez", "Pelican Point Lodge", "Cornerstone Guesthouse", "Swakopmund Sands Hotel", "Brigadoon Boutique Guesthouse"], "Erongo": ["Epako Safari Lodge", "Erongo Plateau Camp", "Erongo Rocks", "Ai Aiba Rock Painting Lodge", "Etusis Lodge", "Hohenstein Lodge", "Immenhof Guest Farm", "Kashana Namibia", "La Rochelle Lodge"], "Damaraland": ["Damaraland Camp", "Mowani Mountain Camp", "Camp Kipwe", "Grootberg Lodge", "Hoada Campsite", "Palmwag Lodge", "Twyfelfontein Country Lodge", "Doro Nawas Camp", "Vingerklip Lodge", "Huab Lodge", "Ugab Terrace Lodge", "Ondjamba Hills", "Khorixas Lodge", "iGowati Country Hotel", "Uis Elephant", "Damara Mopane Lodge", "Spitzkoppen Lodge", "Etendeka Mountain Camp", "Wilderness Doro Nawas", "Wilderness Damaraland Camp", "Wilderness Desert Rhino Camp", "Twyfelfontein Adventure Camp"], "Skeleton Coast": ["Shipwreck Lodge", "Terrace Bay Resort", "Torra Bay Campsite", "Cape Cross Lodge", "Wilderness Hoanib Skeleton Coast Camp"], "Kaokoland": ["Okahirongo Elephant Lodge", "Okahirongo River Camp", "Khowarib Lodge", "Sesfontein Guesthouse", "Okahirongo Elephant Lodge (Luxury)", "Purros Bush Camp", "Wilderness Serra Cafema", "Hoanib Valley Camp", "Hoanib Elephant Camp"], "Epupa": ["Epupa Camp", "Omarunga Epupa Falls Camp", "Kapika Waterfall Lodge"], "Opuwo": ["Opuwo Country Lodge", "Kaoko Mopane Lodge"], "Etosha West": ["Hobatere Lodge"], "Etosha South": ["Etosha Village", "Etosha Safari Lodge", "Etosha Safari Camp", "Toshari Lodge", "Etosha Gateway", "Halali Resort", "Okaukuejo Resort", "Eagle Tented Lodge", "Epacha Game Lodge", "Bambatsi Guest Farm", "Ombinda Country Lodge", "Etosha Village Camping2go", "Okutala Etosha Lodge", "Little Ongava", "Anderssons At Ongava", "Ongava Tented Camp", "Ongava Lodge", "Etosha Mopane Safari Lodge", "Safari House", "Etosha Oberland Lodge", "Safarihoek Lodge"], "Etosha East": ["Mushara Lodge", "Mushara Outpost", "Mushara Villa", "Mokuti Etosha Lodge", "Onguma Bush Camp", "Onguma Tented Camp", "Onguma Tree Top", "Onguma The Fort", "Etosha King Nehale", "Namutoni Resort", "Mushara Bush Camp", "Onguma Forest Camp", "Villa Mushara", "Ongula Village Homestead Lodge"], "Central Namibia": ["Gabuse Guest House", "Khorab Safari Lodge", "Okonjima Plains Camp", "Okonjima Bush Camp", "Waterberg Plateau Lodge", "Waterberg Wilderness", "Waterberg Valley Lodge", "Mount Etjo Safari Lodge", "Frans Indongo Lodge", "Otjiwa Safari Lodge", "Okahandja Country Hotel", "Midgard Country Estate", "Minen Hotel", "Uris Safari Lodge", "Tsumeb Guesthouse", "Otjiwarongo Guesthouse", "C'est Si Bon Hotel", "Kamaku Guesthouse", "Hadassa Guesthouse", "Casa Forno Guesthouse", "Tsumeb Guesthouse Garden", "Kupferquelle Resort", "Aloegrove Safari Lodge", "Gabus Safari Lodge", "Ghaub", "Ohorongo Game and Safari Lodge", "Desert Dune Safari", "Evening Shade", "Dornhuegel Guestfarm", "Gabus Game Ranch", "Haus Mopanie", "Ohange Lodge", "Okonjima Bush Suite", "Okonjima Luxury Bush Camp", "Okonjima Villa"], "Caprivi": ["Tambuti Lodge", "Kayova River Lodge", "Ngandu Safari Lodge", "Mazambala Island Lodge", "Camp Kwando", "Lianshulu Lodge", "Lianshulu Bush Lodge", "Mudumu River Camp", "Namushasha River Camping2go", "Zambezi Mubala Camping2go", "Chobe Savannah Lodge", "Impalila Island Lodge", "Ichingo Chobe River Lodge", "Shametu River Lodge", "Popa Falls Resort", "Nunda River Lodge", "Mahangu Safari Lodge", "Ndhovu Safari Lodge", "Simanya River Lodge", "White Sands Caprivi", "Susuwe Island Lodge", "Chobe River Camp", "Jackalberry Tented Camp", "Nkasa Lupala Tented Lodge", "Zambezi Queen", "Zambezi Mubala Camp", "Zambezi Mubala Lodge", "Ntunda Lodge", "Mango Guesthouse", "Hakusembe River Lodge", "Chobe Princess", "Nkasa Linyanti"], "Kalahari": ["Bagatelle Kalahari Game Ranch", "Kalahari Anib Lodge", "Kalahari Farmhouse", "Camelthorn Kalahari Lodge", "Zebra Kalahari Lodge", "Suricate Tented Kalahari Lodge", "Lapa Lange Game Lodge", "Anib Lodge", "Intu Afrika Camelthorn Lodge", "Zelda Game & Guest Farm", "Kalahari Bush Breaks", "Burgsdorf Guest Farm", "Helmeringhausen Hotel", "Namibgrens Guest Farm", "Gibeon Folk Hotel", "Duwisib Guest Farm", "Africa Safari Lodge", "Auob Country Lodge", "Kalahari Game Lodge", "Harnas Wildlife Foundation", "Terra Rouge Guest Farm", "Guest Farm Kiripotib", "Kalahari Red Dunes Lodge", "Teufelskrallen Lodge"], "South Namibia": ["Seeheim Hotel", "Garas Park Quivertree", "Garas Park", "Seeheim Hotel (Adventure)", "Bethanie Guesthouse", "Alte Kalkofen Lodge", "Bahnhof Hotel Aus", "Nooishof", "Norotshama River Resort", "Canyon Lodge", "Canyon Roadhouse", "Fish River Lodge", "Canyon Village", "Goibib Mountain Lodge"], "Luderitz": ["Luderitz Nest Hotel", "Kairos Cottage", "Island Cottage", "Luderitz Backpackers", "Shark Island Resort", "Alte Villa 2025"], "Botswana": ["Chobe Water Villas", "Camp Kuzuma", "Muchenje Safari Lodge", "Ngoma Safari Lodge", "Chobe Safari Lodge", "Chobe Marina Lodge", "Cresta Mowana Safari Resort & Spa", "Chobe Game Lodge", "Elephant Valley Lodge", "Chobe Elephant Camp"]};
+        const regionsDb = {"Windhoek": ["Acacia Guesthouse", "Auas Safari Lodge", "Am Weinberg Boutique Hotel", "Arebbusch Travel Lodge", "Avani Windhoek Hotel", "Belvedere Boutique Hotel", "Olive Exclusive", "Olive Grove Guesthouse", "Windhoek Country Club Resort", "Hotel Thule", "River Crossing Lodge", "Safari Court Hotel", "Safari Hotel", "Windhoek Luxury Guesthouse", "Roof of Africa Hotel", "Puccini House", "Londiningi Guesthouse", "Villa Violet Guesthouse", "The Elegant Guesthouse", "GocheGanas Nature Reserve", "Na'an ku se Lodge", "Duesternbrook Safari Guest Farm", "Droombos", "Heinitzburg Boutique Hotel", "Hohewarte Guestfarm", "Onjala", "Voigtland", "Windhoek Lux Suites", "Casa Blanca Boutique Hotel", "Immanuel Lodge", "Ti Melen Boutique Guesthouse", "Waldeck Namibia", "Zannier Omaanda"], "Sossusvlei": ["Sossusvlei Lodge", "Desert Camp", "Desert Quiver Camp", "Hoodia Lodge", "Moon Mountain Lodge", "Elegant Desert Lodge", "Desert Homestead Lodge", "Desert Homestead Outpost", "Le Mirage Resort & Spa", "Sossus Dune Lodge", "Wolwedans Dunes Lodge", "Kulala Desert Lodge", "Little Kulala", "Sossusvlei Desert Lodge", "Agama River Camp", "Rostock Ritz Desert Lodge", "Solitaire Desert Farm", "Solitaire Camping2go", "Agama Camping", "Sossusvlei Lodge Adventure Camp", "Desert Camp Camping", "Greenfire Desert Lodge", "Kanaan Desert Retreat", "Agama Lodge", "Barkhan Dune Retreat", "Little Sossus Lodge", "Tsauchab River Camp", "Wilderness Kulala Desert Lodge", "Sossus Oasis Campsite", "andBeyond Sossusvlei Desert Lodge", "Namib Outpost", "Elegant Desert Camp", "Desert Whisper", "Namib Dune Star Camp", "The Desert Grace", "Namib Sky Balloon Safaris", "Wolwedans Boulders Camp", "Wolwedans Plains Camp", "Wolwedans Mountain View Suite", "Kwessi Dunes", "Zannier Sonop"], "Swakopmund": ["Hansa Hotel", "Strand Hotel Swakopmund", "The Delight Swakopmund", "Swakopmund Hotel", "Beach Hotel Swakopmund", "Pelican Bay Hotel", "Protea Hotel Walvis Bay", "Burning Shore Lodge", "Desert Breeze Lodge", "Hotel Pension à la Mer", "Hotel Zum Kaiser", "Sea Breeze Guesthouse", "Flamingo Villa Boutique Hotel", "Henties Bay Caravan Park", "Atlantic Villa", "Namib Guesthouse", "Organic Stay", "Oyster Box Guesthouse", "The Rez", "Pelican Point Lodge", "Cornerstone Guesthouse", "Swakopmund Sands Hotel", "Brigadoon Boutique Guesthouse"], "Erongo": ["Epako Safari Lodge", "Erongo Plateau Camp", "Erongo Rocks", "Ai Aiba Rock Painting Lodge", "Etusis Lodge", "Hohenstein Lodge", "Immenhof Guest Farm", "Kashana Namibia", "La Rochelle Lodge"], "Damaraland": ["Damaraland Camp", "Mowani Mountain Camp", "Camp Kipwe", "Grootberg Lodge", "Hoada Campsite", "Palmwag Lodge", "Twyfelfontein Country Lodge", "Doro Nawas Camp", "Vingerklip Lodge", "Huab Lodge", "Ugab Terrace Lodge", "Ondjamba Hills", "Khorixas Lodge", "iGowati Country Hotel", "Uis Elephant", "Damara Mopane Lodge", "Spitzkoppen Lodge", "Etendeka Mountain Camp", "Wilderness Damaraland Camp", "Desert Rhino Camp", "Twyfelfontein Adventure Camp"], "Skeleton Coast": ["Shipwreck Lodge", "Terrace Bay Resort", "Torra Bay Campsite", "Cape Cross Lodge", "Wilderness Hoanib Skeleton Coast Camp"], "Kaokoland": ["Okahirongo Elephant Lodge", "Okahirongo River Camp", "Khowarib Lodge", "Sesfontein Guesthouse", "Okahirongo Elephant Lodge (Luxury)", "Purros Bush Camp", "Wilderness Serra Cafema", "Hoanib Valley Camp", "Hoanib Elephant Camp"], "Epupa": ["Epupa Camp", "Omarunga Epupa Falls Camp", "Kapika Waterfall Lodge"], "Opuwo": ["Opuwo Country Lodge", "Kaoko Mopane Lodge"], "Etosha West": ["Hobatere Lodge"], "Etosha South": ["Etosha Village", "Etosha Safari Lodge", "Etosha Safari Camp", "Toshari Lodge", "Etosha Gateway", "Halali Resort", "Okaukuejo Resort", "Eagle Tented Lodge", "Epacha Game Lodge", "Bambatsi Guest Farm", "Ombinda Country Lodge", "Etosha Village Camping2go", "Okutala Etosha Lodge", "Little Ongava", "Anderssons At Ongava", "Ongava Tented Camp", "Ongava Lodge", "Etosha Mopane Safari Lodge", "Safari House", "Etosha Oberland Lodge", "Safarihoek Lodge"], "Etosha East": ["Mushara Lodge", "Mushara Outpost", "Mushara Villa", "Mokuti Etosha Lodge", "Onguma Bush Camp", "Onguma Tented Camp", "Onguma Tree Top", "Onguma The Fort", "Etosha King Nehale", "Namutoni Resort", "Mushara Bush Camp", "Onguma Forest Camp", "Villa Mushara", "Ongula Village Homestead Lodge"], "Central Namibia": ["Gabuse Guest House", "Khorab Safari Lodge", "Okonjima Plains Camp", "Okonjima Bush Camp", "Waterberg Plateau Lodge", "Waterberg Wilderness", "Waterberg Valley Lodge", "Mount Etjo Safari Lodge", "Frans Indongo Lodge", "Otjiwa Safari Lodge", "Okahandja Country Hotel", "Midgard Country Estate", "Minen Hotel", "!Uris Safari Lodge", "Tsumeb Guesthouse", "Otjiwarongo Guesthouse", "C'est Si Bon Hotel", "KaMaKu Guesthouse", "Hadassa Guesthouse", "Casa Forno Guesthouse", "Tsumeb Guesthouse Garden", "Kupferquelle Resort", "Aloegrove Safari Lodge", "Gabus Safari Lodge", "Ghaub", "Ohorongo Game and Safari Lodge", "Desert Dune Safari", "Evening Shade", "Dornhuegel Guestfarm", "Gabus Game Ranch", "Haus Mopanie", "Ohange Lodge", "Okonjima Bush Suite", "Okonjima Luxury Bush Camp", "Okonjima Villa"], "Caprivi": ["Tambuti Lodge", "Kayova River Lodge", "Ngandu Safari Lodge", "Mazambala Island Lodge", "Camp Kwando", "Lianshulu Lodge", "Lianshulu Bush Lodge", "Mudumu River Camp", "Namushasha River Camping2go", "Zambezi Mubala Camping2go", "Chobe Savannah Lodge", "Impalila Island Lodge", "Shametu River Lodge", "Popa Falls Resort", "Nunda River Lodge", "Mahangu Safari Lodge", "Ndhovu Safari Lodge", "Simanya River Lodge", "White Sands Caprivi", "Susuwe Island Lodge", "Chobe River Camp", "Jackalberry Tented Camp", "Nkasa Lupala Tented Lodge", "Zambezi Mubala Camp", "Zambezi Mubala Lodge", "Ntunda Lodge", "Mango Guesthouse", "Hakusembe River Lodge", "Nkasa Linyanti"], "Kalahari": ["Bagatelle Kalahari Game Ranch", "Kalahari Anib Lodge", "Kalahari Farmhouse", "Camelthorn Kalahari Lodge", "Zebra Kalahari Lodge", "Suricate Tented Kalahari Lodge", "Lapa Lange Game Lodge", "Anib Lodge", "Intu Afrika Camelthorn Lodge", "Zelda Game & Guest Farm", "Kalahari Bush Breaks", "Burgsdorf Guest Farm", "Helmeringhausen Hotel", "Namibgrens Guest Farm", "Gibeon Folk Hotel", "Duwisib Guest Farm", "Africa Safari Lodge", "Auob Country Lodge", "Kalahari Game Lodge", "Harnas Wildlife Foundation", "Terra Rouge Guest Farm", "Guest Farm Kiripotib", "Kalahari Red Dunes Lodge", "Teufelskrallen Lodge"], "South Namibia": ["Seeheim Hotel", "Garas Park Quivertree", "Garas Park", "Seeheim Hotel (Adventure)", "Bethanie Guesthouse", "Alte Kalkofen Lodge", "Bahnhof Hotel Aus", "Nooishof", "Norotshama River Resort", "Canyon Lodge", "Canyon Roadhouse", "Fish River Lodge", "Canyon Village", "Goibib Mountain Lodge"], "Luderitz": ["Lüderitz Nest Hotel", "Kairos Cottage", "Island Cottage", "Luderitz Backpackers", "Shark Island Resort", "Alte Villa 2025"], "Botswana": ["Chobe Water Villas", "Camp Kuzuma", "Muchenje Safari Lodge", "Ngoma Safari Lodge", "Chobe Safari Lodge", "Chobe Marina Lodge", "Cresta Mowana Safari Resort & Spa", "Chobe Game Lodge", "Elephant Valley Lodge", "Chobe Elephant Camp"]};
 
         // --- Lodges added so their rate sheets can be linked (not in the original regionsDb) ---
         regionsDb["Erongo"].push("Omaruru Game Lodge");
@@ -1060,6 +1070,45 @@
         regionsDb["Epupa"].push("Epupa Falls Lodge");
         regionsDb["Sossusvlei"].push("Ababis Guest Farm", "Solitaire Mountain Lodge");
         regionsDb["Central Namibia"].push("Okonjima Nature Reserve");
+        // --- Added: lodges that had a rate sheet but were not yet in the dropdown ---
+        regionsDb["Caprivi"].push("Hakusembe Camping2Go", "Namushasha River Lodge", "Namushasha River Villa", "Namushasha Camping2Go", "Divava Okavango");
+        regionsDb["Sossusvlei"].push("Namib Desert Lodge", "Namib Desert Camping2Go", "Sesriem Campsite", "Naukluft Camp", "Wolwedans Dune Camp");
+        regionsDb["Etosha South"].push("Etosha Safari Camping2Go", "The Ekipa Etosha Pod");
+        regionsDb["Kalahari"].push("Reverie Kalahari Pod", "Kalahari Camping2Go", "Hardap Resort");
+        regionsDb["Damaraland"].push("Palmwag Camping2Go", "Palmwag Under-Canvas Sleep-Out", "Spitzkoppe Rest Camp", "Spitzkoppe Cabin Camp", "Mowani Campsite");
+        regionsDb["Windhoek"].push("The Weinberg", "Weinberg Urban Pod", "Okapuka Safari Lodge");
+        regionsDb["Swakopmund"].push("The Pearls Beach Pods");
+        regionsDb["South Namibia"].push("Koiimasis Farmlodge", "Boplaas Campsite", "Ai-Ais Hot Springs & Spa", "Hobas Lodge");
+        regionsDb["Opuwo"].push("Forgotten Valley");
+        regionsDb["Etosha West"].push("Olifantsrus Campsite", "Dolomite Camp", "Etosha Mountain Lodge");
+        regionsDb["Skeleton Coast"].push("Mile 108");
+        regionsDb["Central Namibia"].push("Gross Barmen Resort", "Waterberg Camp");
+        regionsDb["Etosha East"].push("Onkoshi Camp");
+        regionsDb["Erongo"].push("Ondudu Safari Lodge");
+        // --- Added: Taleni Africa sheets not yet in the dropdown ---
+        regionsDb["Etosha South"].push("Etosha Trading Post Campsite", "Etosha Village Campsite");
+        // --- Added: Ultimate Safaris camps ---
+        regionsDb["Sossusvlei"].push("Camp Sossus");
+        regionsDb["Windhoek"].push("Galton House");
+        regionsDb["Damaraland"].push("Camp Doros", "Onduli Ridge", "Onduli Enclave");
+        // --- Added: Wilderness ---
+        regionsDb["Sossusvlei"].push("Wilderness Little Kulala");
+        // --- Added: Khorixas Camp (NWR) + Sun Karros ---
+        regionsDb["Damaraland"].push("Khorixas Camp");
+        regionsDb["Windhoek"].push("Daan Viljoen Lodge", "Daan Viljoen Camping");
+        regionsDb["Sossusvlei"].push("Dead Valley Lodge", "Sesriem Oshana Campsite");
+        regionsDb["Swakopmund"].push("Windpomp 14 Sea Side Camp");
+        // --- Added: Hammerstein Africa ---
+        regionsDb["Sossusvlei"].push("Hammerstein Lodge", "Desert Hills Lodge", "We Kebi Safari Lodge");
+        regionsDb["Etosha South"].push("Etosha Omusati Lodge");
+        regionsDb["Swakopmund"].push("Ocean House Guesthouse");
+        // --- Added: Zambezi Queen Collection (moved from Caprivi to Botswana) ---
+        regionsDb["Botswana"].push("Zambezi Queen", "Chobe Princess", "Ichingo Chobe River Lodge");
+        // --- Added: Big Sky Lodges ---
+        regionsDb["Damaraland"].push("Etendeka Hiking Trails");
+        // --- Added: Onguma split sheets + Quiver & Co (2026-06-15) ---
+        regionsDb["Etosha East"].push("Onguma Camp Kala", "Onguma Leadwood Campsite", "Onguma Tamboti Campsite");
+        regionsDb["Damaraland"].push("Lodge Damaraland");
 
         // Sort all lodges alphabetically globally
         Object.keys(regionsDb).forEach(region => {
@@ -1115,7 +1164,7 @@
             "Sesfontein Guesthouse": "Kunene/sesfontein_guesthouse_ratesheet_v3.html",
             // Luderitz
             "Alte Villa 2025": "Luderitz/alte_villa_ratesheet_v3.html",
-            "Luderitz Nest Hotel": "Luderitz/luderitz_nest_hotel_ratesheet_v3.html",
+            "Lüderitz Nest Hotel": "Luderitz/luderitz_nest_hotel_ratesheet_v3.html",
             // Sossusvlei
             "Ababis Guest Farm": "Sossusvlei/ababis_ratesheet_v3.html",
             "Little Sossus Lodge": "Sossusvlei/little_sossus_lodge_ratesheet_v3.html",
@@ -1138,7 +1187,7 @@
             "Aloegrove Safari Lodge": "Waterberg/aloegrove_ratesheet_v3.html",
             "Gabus Safari Lodge": "Waterberg/gabus_safari_lodge_ratesheet_v3.html",
             "Ghaub": "Waterberg/ghaub_nature_reserve_ratesheet_v3.html",
-            "Kamaku Guesthouse": "Waterberg/kamaku_guesthouse_ratesheet_v3.html",
+            "KaMaKu Guesthouse": "Waterberg/kamaku_guesthouse_ratesheet_v3.html",
             "Okonjima Nature Reserve": "Waterberg/okonjima_ratesheet_v3.html",
             "Waterberg Wilderness": "Waterberg/waterberg_wilderness_ratesheet_v3.html",
             // Windhoek
@@ -1155,11 +1204,241 @@
             "Windhoek Lux Suites": "Windhoek/windhoek_lux_suites_ratesheet_v3.html"
         };
 
+        // --- Local STO rate sheets (NEW system) ---
+        // Selecting one of these lodges in the dropdown opens its rate sheet (a local file
+        // on this machine) in a new tab. Single sheets live in "single lodges/<Region>/",
+        // group sheets in "group lodges/" (open to the collection grid; click through to the
+        // property). Keyed by the EXACT dropdown lodge name. Will repoint to namibiarates.com
+        // once the rate app design is finalised.
+        const nrStoSheetBase = "../dt_library/";
+                        const nrStoSheets = {
+            "Camp Kwando": "single lodges/Caprivi/camp_kwando_ratesheet_v3.html",
+            "White Sands Caprivi": "single lodges/Caprivi/white_sands_ratesheet_v3.html",
+            "Epako Safari Lodge": "single lodges/Damaraland/epako_safari_lodge_ratesheet_v3.html",
+            "Erongo Rocks": "single lodges/Damaraland/erongo_rocks_ratesheet_v3.html",
+            "Nooishof": "single lodges/Damaraland/nooishof_ratesheet_v3.html",
+            "Ohorongo Game and Safari Lodge": "single lodges/Damaraland/ohorongo_safari_lodge_ratesheet_v3.html",
+            "Omaruru Game Lodge": "single lodges/Damaraland/omaruru_game_lodge_ratesheet_v3.html",
+            "Uis Elephant": "single lodges/Damaraland/uis_elephant_ratesheet_v3.html",
+            "Vingerklip Lodge": "single lodges/Damaraland/vingerklip_lodge_ratesheet_v3.html",
+            "Epacha Game Lodge": "single lodges/Etosha/epacha_game_lodge_ratesheet_v3.html",
+            "Eagle Tented Lodge": "single lodges/Etosha/epacha_game_lodge_ratesheet_v3.html",
+            "Okutala Etosha Lodge": "single lodges/Etosha/okutala_etosha_lodge_ratesheet_v3.html",
+            "Simanya River Lodge": "single lodges/Etosha/simanya_river_lodge_ratesheet_v3.html",
+            "Africa Safari Lodge": "single lodges/Kalahari/africa_safari_lodge_ratesheet_v3.html",
+            "Barkhan Dune Retreat": "single lodges/Kalahari/barkhan_dune_retreat_ratesheet_v3.html",
+            "Kalahari Game Lodge": "single lodges/Kalahari/kalahari_game_lodge_ratesheet_v3.html",
+            "Kaoko Mopane Lodge": "single lodges/Kunene/kaoko_mopane_lodge_ratesheet_v3.html",
+            "Opuwo Country Lodge": "single lodges/Kunene/opuwo_country_lodge_ratesheet_v3.html",
+            "Sesfontein Guesthouse": "single lodges/Kunene/sesfontein_guesthouse_ratesheet_v3.html",
+            "Alte Villa 2025": "single lodges/Luderitz/alte_villa_ratesheet_v3.html",
+            "Lüderitz Nest Hotel": "single lodges/Luderitz/luderitz_nest_hotel_ratesheet_v3.html",
+            "Moon Mountain Lodge": "single lodges/Sossusvlei/moon_mountain_lodge_ratesheet_v3.html",
+            "Little Sossus Lodge": "single lodges/Sossusvlei/little_sossus_lodge_ratesheet_v3.html",
+            "Namib Outpost": "single lodges/Sossusvlei/namib_outpost_ratesheet_v3.html",
+            "Rostock Ritz Desert Lodge": "single lodges/Sossusvlei/rostock_ritz_ratesheet_v3.html",
+            "Tsauchab River Camp": "single lodges/Sossusvlei/tsauchab_river_camp_ratesheet_v3.html",
+            "Alte Kalkofen Lodge": "single lodges/South/alte_kalkofen_ratesheet_v3.html",
+            "Atlantic Villa": "single lodges/Swakopmund/atlantic_villa_ratesheet_v3.html",
+            "Cornerstone Guesthouse": "single lodges/Swakopmund/cornerstone_guesthouse_ratesheet_v3.html",
+            "Flamingo Villa Boutique Hotel": "single lodges/Swakopmund/flamingo_villas_ratesheet_v3.html",
+            "Namib Guesthouse": "single lodges/Swakopmund/namib_guesthouse_ratesheet_v3.html",
+            "Organic Stay": "single lodges/Swakopmund/organic_stay_ratesheet_v3.html",
+            "Oyster Box Guesthouse": "single lodges/Swakopmund/oyster_box_guesthouse_ratesheet_v3.html",
+            "The Rez": "single lodges/Swakopmund/the_rez_ratesheet_v3.html",
+            "Aloegrove Safari Lodge": "single lodges/Waterberg/aloegrove_ratesheet_v3.html",
+            "Gabus Safari Lodge": "single lodges/Waterberg/gabus_safari_lodge_ratesheet_v3.html",
+            "Ghaub": "single lodges/Waterberg/ghaub_nature_reserve_ratesheet_v3.html",
+            "KaMaKu Guesthouse": "single lodges/Waterberg/kamaku_guesthouse_ratesheet_v3.html",
+            "Okonjima Plains Camp": "single lodges/Waterberg/okonjima_ratesheet_v3.html",
+            "Okonjima Bush Camp": "single lodges/Waterberg/okonjima_ratesheet_v3.html",
+            "Okonjima Bush Suite": "single lodges/Waterberg/okonjima_ratesheet_v3.html",
+            "Okonjima Luxury Bush Camp": "single lodges/Waterberg/okonjima_ratesheet_v3.html",
+            "Okonjima Villa": "single lodges/Waterberg/okonjima_ratesheet_v3.html",
+            "Waterberg Wilderness": "single lodges/Waterberg/waterberg_wilderness_ratesheet_v3.html",
+            "Auas Safari Lodge": "single lodges/Windhoek/auas_safari_lodge_ratesheet_v3.html",
+            "Belvedere Boutique Hotel": "single lodges/Windhoek/belvedere_ratesheet_v3.html",
+            "Droombos": "single lodges/Windhoek/droombos_estate_ratesheet_v3.html",
+            "Heinitzburg Boutique Hotel": "single lodges/Windhoek/heinitzburg_ratesheet_v3.html",
+            "Hohewarte Guestfarm": "single lodges/Windhoek/hohewarte_guestfarm_ratesheet_v3.html",
+            "Hotel Thule": "single lodges/Windhoek/hotel_thule_ratesheet_v3.html",
+            "Olive Exclusive": "single lodges/Windhoek/olive_exclusive_ratesheet_v3.html",
+            "Onjala": "single lodges/Windhoek/onjala_ratesheet_v3.html",
+            "Voigtland": "single lodges/Windhoek/voigtland_ratesheet_v3.html",
+            "Waldeck Namibia": "single lodges/Windhoek/waldeck_namibia_ratesheet_v3.html",
+            "Windhoek Lux Suites": "single lodges/Windhoek/windhoek_lux_suites_ratesheet_v3.html",
+            "Onguma Bush Camp": "single lodges/_Onguma/onguma_bush_camp.html",
+            "Onguma Tented Camp": "single lodges/_Onguma/onguma_tented_camp.html",
+            "Onguma Tree Top": "single lodges/Etosha East/onguma_ratesheet_v3.html",
+            "Onguma The Fort": "single lodges/_Onguma/onguma_the_fort.html",
+            "Onguma Forest Camp": "single lodges/_Onguma/onguma_forest_camp.html",
+            "Onguma": "single lodges/Etosha East/onguma_ratesheet_v3.html",
+            "Onguma Camp Kala": "single lodges/_Onguma/onguma_camp_kala.html",
+            "Onguma Leadwood Campsite": "single lodges/_Onguma/onguma_leadwood_campsite.html",
+            "Onguma Tamboti Campsite": "single lodges/_Onguma/onguma_tamboti_campsite.html",
+            "Olive Grove Guesthouse": "single lodges/_Quiver & Co/olive_grove_guesthouse.html",
+            "Swakopmund Sands Hotel": "single lodges/_Quiver & Co/swakopmund_sands.html",
+            "Toshari Lodge": "single lodges/_Quiver & Co/toshari_lodge.html",
+            "Lodge Damaraland": "single lodges/_Quiver & Co/lodge_damaraland.html",
+            "Emanya at Etosha": "single lodges/Etosha East/emanya_at_etosha_ratesheet_v3.html",
+            "Epupa Falls Lodge": "single lodges/Kunene/epupa_falls_lodge_ratesheet_v3.html",
+            "Ababis Guest Farm": "single lodges/Sossusvlei/ababis_ratesheet_v3.html",
+            "Solitaire Mountain Lodge": "single lodges/Sossusvlei/solitaire_mountain_lodge_ratesheet_v3.html",
+            "Okonjima Nature Reserve": "single lodges/Waterberg/okonjima_ratesheet_v3.html",
+            "Camp Kipwe": "single lodges/_Chiwani/camp_kipwe.html",
+            "Mowani Mountain Camp": "single lodges/_Chiwani/mowani_mountain_camp.html",
+            "Canyon Lodge": "single lodges/_Gondwana/canyon_lodge.html",
+            "Canyon Roadhouse": "single lodges/_Gondwana/canyon_roadhouse.html",
+            "Canyon Village": "single lodges/_Gondwana/canyon_village.html",
+            "The Desert Grace": "single lodges/_Gondwana/the_desert_grace.html",
+            "The Delight Swakopmund": "single lodges/_Gondwana/the_delight_swakopmund.html",
+            "Etosha Safari Lodge": "single lodges/_Gondwana/etosha_safari_lodge.html",
+            "Etosha Safari Camp": "single lodges/_Gondwana/etosha_safari_camp.html",
+            "Etosha King Nehale": "single lodges/_Gondwana/etosha_king_nehale.html",
+            "Kalahari Anib Lodge": "single lodges/_Gondwana/kalahari_anib_lodge.html",
+            "Kalahari Farmhouse": "single lodges/_Gondwana/kalahari_farmhouse.html",
+            "Namib Dune Star Camp": "single lodges/_Gondwana/namib_dune_star_camp.html",
+            "Desert Whisper": "single lodges/_Gondwana/desert_whisper.html",
+            "Damara Mopane Lodge": "single lodges/_Gondwana/damara_mopane_lodge.html",
+            "Palmwag Lodge": "single lodges/_Gondwana/palmwag_lodge.html",
+            "Omarunga Epupa Falls Camp": "single lodges/_Gondwana/omarunga_epupa_falls_camp.html",
+            "Hakusembe River Lodge": "single lodges/_Gondwana/hakusembe_river_lodge.html",
+            "Chobe River Camp": "single lodges/_Gondwana/chobe_river_camp.html",
+            "Zambezi Mubala Camp": "single lodges/_Gondwana/zambezi_mubala_camp.html",
+            "Zambezi Mubala Lodge": "single lodges/_Gondwana/zambezi_mubala_lodge.html",
+            "Fish River Lodge": "single lodges/_Journeys Namibia/fish_river_lodge.html",
+            "Grootberg Lodge": "single lodges/_Journeys Namibia/grootberg_lodge.html",
+            "Hoada Campsite": "single lodges/_Journeys Namibia/hoada_campsite.html",
+            "Kalahari Bush Breaks": "single lodges/_Logufa/kalahari_bush_breaks.html",
+            "Spitzkoppen Lodge": "single lodges/_Logufa/spitzkoppen_lodge.html",
+            "Mushara Lodge": "single lodges/_Mushara/mushara_lodge.html",
+            "Mushara Outpost": "single lodges/_Mushara/mushara_outpost.html",
+            "Mushara Bush Camp": "single lodges/_Mushara/mushara_bush_camp.html",
+            "Mushara Villa": "single lodges/_Mushara/villa_mushara.html",
+            "Villa Mushara": "single lodges/_Mushara/villa_mushara.html",
+            "Shipwreck Lodge": "single lodges/_Natural Selection/shipwreck_lodge.html",
+            "Hoanib Valley Camp": "single lodges/_Natural Selection/hoanib_valley_camp.html",
+            "Hoanib Elephant Camp": "single lodges/_Natural Selection/hoanib_elephant_camp.html",
+            "Kwessi Dunes": "single lodges/_Natural Selection/kwessi_dunes.html",
+            "Nkasa Linyanti": "single lodges/_Natural Selection/nkasa_linyanti.html",
+            "Safarihoek Lodge": "single lodges/_Natural Selection/safarihoek_lodge.html",
+            "Safari House": "single lodges/_Natural Selection/safari_house.html",
+            "Halali Resort": "single lodges/_NWR/halali_camp.html",
+            "Okaukuejo Resort": "single lodges/_NWR/okaukuejo_camp.html",
+            "Namutoni Resort": "single lodges/_NWR/namutoni_camp.html",
+            "Terrace Bay Resort": "single lodges/_NWR/terrace_bay_resort.html",
+            "Sossus Dune Lodge": "single lodges/_NWR/sossus_dune_lodge.html",
+            "Popa Falls Resort": "single lodges/_NWR/popa_falls_lodge.html",
+            "Shark Island Resort": "single lodges/_NWR/shark_island_resort.html",
+            "Strand Hotel Swakopmund": "single lodges/_O&L Leisure/strand_hotel_swakopmund.html",
+            "Mokuti Etosha Lodge": "single lodges/_O&L Leisure/mokuti_etosha_lodge.html",
+            "Midgard Country Estate": "single lodges/_O&L Leisure/midgard_otjihavera_windhoek.html",
+            "Le Mirage Resort & Spa": "single lodges/_O&L Leisure/le_mirage_sossusvlei.html",
+            "Chobe Water Villas": "single lodges/_O&L Leisure/chobe_water_villas_zambezi.html",
+            "Desert Homestead Lodge": "single lodges/_Ondili/desert_homestead_lodge.html",
+            "Etosha Oberland Lodge": "single lodges/_Ondili/etosha_oberland_lodge.html",
+            "Hohenstein Lodge": "single lodges/_Ondili/hohenstein_lodge.html",
+            "Kalahari Red Dunes Lodge": "single lodges/_Ondili/kalahari_red_dunes_lodge.html",
+            "Teufelskrallen Lodge": "single lodges/_Ondili/teufelskrallen_lodge.html",
+            "Twyfelfontein Adventure Camp": "single lodges/_Ondili/twyfelfontein_adventure_camp.html",
+            "Ti Melen Boutique Guesthouse": "single lodges/_Ondili/ti_melen.html",
+            "Little Ongava": "single lodges/_Ongava/little_ongava.html",
+            "Anderssons At Ongava": "single lodges/_Ongava/anderssons_at_ongava.html",
+            "Ongava Tented Camp": "single lodges/_Ongava/ongava_tented_camp.html",
+            "Ongava Lodge": "single lodges/_Ongava/ongava_lodge.html",
+            "Wolwedans Dunes Lodge": "single lodges/_Wolwedans/wolwedans_desert_lodge_dunes_lodge.html",
+            "Wolwedans Boulders Camp": "single lodges/_Wolwedans/wolwedans_boulders_camp.html",
+            "Wolwedans Plains Camp": "single lodges/_Wolwedans/wolwedans_plains_camp.html",
+            "Wolwedans Mountain View Suite": "single lodges/_Wolwedans/wolwedans_mountain_view_suite.html",
+            "Hakusembe Camping2Go": "single lodges/_Gondwana/hakusembe_camping2go.html",
+            "Namushasha River Lodge": "single lodges/_Gondwana/namushasha_river_lodge.html",
+            "Namushasha River Villa": "single lodges/_Gondwana/namushasha_river_villa.html",
+            "Namushasha Camping2Go": "single lodges/_Gondwana/namushasha_camping2go.html",
+            "Divava Okavango": "single lodges/_O&L Leisure/divava_okavango.html",
+            "Namib Desert Lodge": "single lodges/_Gondwana/namib_desert_lodge.html",
+            "Namib Desert Camping2Go": "single lodges/_Gondwana/namib_desert_camping2go.html",
+            "Sesriem Campsite": "single lodges/_NWR/sesriem_campsite.html",
+            "Naukluft Camp": "single lodges/_NWR/naukluft_camp.html",
+            "Wolwedans Dune Camp": "single lodges/_Wolwedans/wolwedans_dune_camp.html",
+            "Etosha Safari Camping2Go": "single lodges/_Gondwana/etosha_safari_camping2go.html",
+            "The Ekipa Etosha Pod": "single lodges/_Gondwana/the_ekipa_etosha_pod.html",
+            "Reverie Kalahari Pod": "single lodges/_Gondwana/reverie_kalahari_pod.html",
+            "Kalahari Camping2Go": "single lodges/_Gondwana/kalahari_camping2go.html",
+            "Hardap Resort": "single lodges/_NWR/hardap_resort.html",
+            "Palmwag Camping2Go": "single lodges/_Gondwana/palmwag_camping2go.html",
+            "Palmwag Under-Canvas Sleep-Out": "single lodges/_Gondwana/palmwag_under_canvas_sleep_out.html",
+            "Spitzkoppe Rest Camp": "single lodges/_Logufa/spitzkoppe_restcamp.html",
+            "Spitzkoppe Cabin Camp": "single lodges/_Logufa/spitzkoppe_cabin_camp.html",
+            "Mowani Campsite": "single lodges/_Chiwani/mowani_campsite.html",
+            "The Weinberg": "single lodges/_Gondwana/the_weinberg.html",
+            "Weinberg Urban Pod": "single lodges/_Gondwana/weinberg_urban_pod.html",
+            "Okapuka Safari Lodge": "single lodges/_Gondwana/okapuka_safari_lodge.html",
+            "The Pearls Beach Pods": "single lodges/_Gondwana/the_pearls_beach_pods.html",
+            "Koiimasis Farmlodge": "single lodges/_Logufa/koiimasis_farmlodge.html",
+            "Boplaas Campsite": "single lodges/_NWR/boplaas_campsite.html",
+            "Ai-Ais Hot Springs & Spa": "single lodges/_NWR/ai_ais_hot_springs_and_spa.html",
+            "Hobas Lodge": "single lodges/_NWR/hobas_lodge.html",
+            "Forgotten Valley": "single lodges/_Logufa/forgotten_valley.html",
+            "Olifantsrus Campsite": "single lodges/_NWR/olifantsrus_campsite.html",
+            "Dolomite Camp": "single lodges/_NWR/dolomite_camp.html",
+            "Etosha Mountain Lodge": "single lodges/_Natural Selection/etosha_mountain_lodge.html",
+            "Mile 108": "single lodges/_NWR/mile_108.html",
+            "Gross Barmen Resort": "single lodges/_NWR/gross_barmen_resort.html",
+            "Waterberg Camp": "single lodges/_NWR/waterberg_camp.html",
+            "Onkoshi Camp": "single lodges/_NWR/onkoshi_camp.html",
+            "Ondudu Safari Lodge": "single lodges/_Journeys Namibia/ondudu_safari_lodge.html",
+            "Sossusvlei Lodge": "single lodges/_Taleni Africa/sossusvlei_lodge.html",
+            "Desert Camp": "single lodges/_Taleni Africa/desert_camp.html",
+            "Desert Quiver Camp": "single lodges/_Taleni Africa/desert_quiver_camp.html",
+            "Sossus Oasis Campsite": "single lodges/_Taleni Africa/sossus_oasis_campsite.html",
+            "Etosha Village": "single lodges/_Taleni Africa/etosha_village.html",
+            "Etosha Trading Post Campsite": "single lodges/_Taleni Africa/etosha_trading_post_campsite.html",
+            "Etosha Village Campsite": "single lodges/_Taleni Africa/etosha_village_campsite.html",
+            "Camp Sossus": "single lodges/_Ultimate Safaris/camp_sossus.html",
+            "Galton House": "single lodges/_Ultimate Safaris/galton_house.html",
+            "Camp Doros": "single lodges/_Ultimate Safaris/camp_doros.html",
+            "Onduli Ridge": "single lodges/_Ultimate Safaris/onduli_ridge.html",
+            "Onduli Enclave": "single lodges/_Ultimate Safaris/onduli_enclave.html",
+            "Wilderness Damaraland Camp": "single lodges/_Wilderness/wilderness_damaraland_camp.html",
+            "Desert Rhino Camp": "single lodges/_Wilderness/wilderness_desert_rhino_camp.html",
+            "Doro Nawas Camp": "single lodges/_Wilderness/wilderness_doro_nawas.html",
+            "Wilderness Hoanib Skeleton Coast Camp": "single lodges/_Wilderness/wilderness_hoanib_skeleton_coast_camp.html",
+            "Wilderness Kulala Desert Lodge": "single lodges/_Wilderness/wilderness_kulala_desert_lodge.html",
+            "Wilderness Little Kulala": "single lodges/_Wilderness/wilderness_little_kulala.html",
+            "Wilderness Serra Cafema": "single lodges/_Wilderness/wilderness_serra_cafema.html",
+            "Khorixas Camp": "single lodges/_NWR/khorixas_camp.html",
+            "Daan Viljoen Lodge": "single lodges/_Sun Karros/daan_viljoen_lodge.html",
+            "Daan Viljoen Camping": "single lodges/_Sun Karros/daan_viljoen_camping.html",
+            "Dead Valley Lodge": "single lodges/_Sun Karros/dead_valley_lodge.html",
+            "Sesriem Oshana Campsite": "single lodges/_Sun Karros/sesriem_oshana_campsite.html",
+            "Windpomp 14 Sea Side Camp": "single lodges/_Sun Karros/windpomp_14_sea_side_camp.html",
+            "Hammerstein Lodge": "single lodges/_Hammerstein Africa/hammerstein_lodge.html",
+            "Desert Hills Lodge": "single lodges/_Hammerstein Africa/desert_hills_lodge.html",
+            "We Kebi Safari Lodge": "single lodges/_Hammerstein Africa/we_kebi_safari_lodge.html",
+            "Etosha Omusati Lodge": "single lodges/_Hammerstein Africa/etosha_omusati_lodge.html",
+            "Ocean House Guesthouse": "single lodges/_Hammerstein Africa/ocean_house_guesthouse.html",
+            "Zambezi Queen": "single lodges/_Zambezi Queen Collection/zambezi_queen.html",
+            "Chobe Princess": "single lodges/_Zambezi Queen Collection/chobe_princess.html",
+            "Ichingo Chobe River Lodge": "single lodges/_Zambezi Queen Collection/ichingo_chobe_river_lodge.html",
+            "Ai Aiba Rock Painting Lodge": "single lodges/_Big Sky Lodges/ai_aiba_lodge.html",
+            "Etendeka Mountain Camp": "single lodges/_Big Sky Lodges/etendeka_mountain_camp.html",
+            "Etendeka Hiking Trails": "single lodges/_Big Sky Lodges/etendeka_hiking_trails.html",
+            "Twyfelfontein Country Lodge": "single lodges/_Namibia Country Lodges/twyfelfontein_country_lodge.html"
+        };
+
+        // --- Local NightsBridge availability scraper (the Wetu scraper server) ---
+        // Run "000 START WETU SCRAPE.command" so the server is live at localhost:5050,
+        // and make sure your NightsBridge creds are saved (nb_credentials.json). Selecting a
+        // lodge then checks availability for that day's dates and colours the dot:
+        // seafoam = available, red = sold out, neutral = checking / not on NightsBridge.
+        const NB_SCRAPER_BASE = "http://localhost:5050";
+
         const app = createApp({
             data() {
                 return {
                     activeSection: 'step-1-client',
                     activeTab: 'dt',
+                    lodgeMenu: { row: null, top: 0, left: 0, width: 0 },
                     clientName: '',
                     quoteLabel: '',
                     agentName: '',
@@ -1338,6 +1617,14 @@
                 }
             },
             mounted() {
+                // Close the custom lodge dropdown if the user scrolls or resizes (fixed-position menu)
+                window.addEventListener('scroll', (e) => {
+                    if (this.lodgeMenu.row === null) return;
+                    // Don't close when the scroll is happening inside the menu itself
+                    if (e.target && e.target.closest && e.target.closest('.nb-lodge-menu')) return;
+                    this.closeLodgeMenu();
+                }, true);
+                window.addEventListener('resize', () => { if (this.lodgeMenu.row !== null) this.closeLodgeMenu(); });
                 // Global enter-to-jump logic
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
@@ -1367,6 +1654,72 @@
                 });
             },
             methods: {
+                openLodgeMenu(index, ev) {
+                    if (!this.itinerary[index].region) return;
+                    const r = ev.currentTarget.getBoundingClientRect();
+                    this.lodgeMenu = { row: index, top: r.bottom + 4, left: r.left, width: r.width };
+                },
+                closeLodgeMenu() {
+                    this.lodgeMenu = { row: null, top: 0, left: 0, width: 0 };
+                },
+                chooseLodge(day, index, val) {
+                    this.closeLodgeMenu();
+                    day.lodge = val;
+                    this.handleLodgeChange(day, index);
+                    day.availState = 'idle';
+                    if (day.lodge) this.checkAvailability(day, index);
+                },
+                async checkAvailability(day, index) {
+                    // Ask the local NightsBridge scraper whether this lodge has space for these dates.
+                    if (!day.lodge || !this.arrivalDate) return;
+                    const ci = this.rowDates[index];
+                    if (!ci) return;
+                    const co = new Date(ci);
+                    co.setDate(co.getDate() + (parseInt(day.nights) || 1));
+                    const fmt = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                    day.availState = 'checking';
+                    try {
+                        const res = await fetch(NB_SCRAPER_BASE + '/api/scrape/nightsbridge', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                lodge_name: day.lodge,
+                                check_in: fmt(ci),
+                                check_out: fmt(co),
+                                guests: Math.max(1, this.numPax || 2),
+                                rooms: Math.max(1, Math.round((this.numPax || 2) / 2))
+                            })
+                        });
+                        if (!res.ok) { day.availState = 'error'; return; }
+                        const data = await res.json();
+                        if (data.error) { day.availState = 'error'; return; }
+                        const props = data.properties || [];
+                        if (!props.length) { day.availState = 'unknown'; return; }
+                        const avail = props.some(p => (p.room_types || []).some(rt => (rt.availability || []).some(a => a.available)));
+                        day.availState = avail ? 'available' : 'unavailable';
+                    } catch (e) {
+                        day.availState = 'offline';
+                    }
+                },
+                lodgeDotColor(day) {
+                    // Availability overrides the rate-sheet indicator once a check has run.
+                    switch (day.availState) {
+                        case 'available':   return '#8fc4b2'; // seafoam
+                        case 'unavailable': return '#c0563f'; // red
+                        case 'checking':    return '#d8c4a4'; // neutral while loading
+                        default:            return this.hasLocalSheet(day.lodge) ? '#8fc4b2' : '';
+                    }
+                },
+                availTitle(day) {
+                    return ({
+                        available: 'Available on NightsBridge for these dates',
+                        unavailable: 'Sold out on NightsBridge for these dates',
+                        checking: 'Checking availability…',
+                        unknown: 'Not found on NightsBridge',
+                        offline: 'Availability server offline — start the Wetu scraper',
+                        error: 'Availability check failed'
+                    }[day.availState]) || (this.hasLocalSheet(day.lodge) ? 'Rate sheet available' : '');
+                },
                 handleLodgeChange(day, index) {
                     if (day.lodge === '__custom__') {
                         const customName = prompt("Enter the name of the new custom lodge:");
@@ -1383,6 +1736,10 @@
                     }
                     if (day.lodge && day.lodge !== '') {
                         this.onLodgeSelect(day, index);
+                        // Open this lodge's STO rate sheet in a new tab on selection
+                        if (nrStoSheets[day.lodge]) {
+                            window.open(encodeURI(nrStoSheetBase + nrStoSheets[day.lodge]), '_blank');
+                        }
                     }
                 },
                 rateSheetUrl(lodge) {
@@ -1391,6 +1748,10 @@
                 },
                 hasRateSheet(lodge) {
                     return !!(lodge && lodgeRateSheetsDb[lodge]);
+                },
+                hasLocalSheet(lodge) {
+                    // True for lodges we've wired a local rate sheet for (shown with a green dot)
+                    return !!(lodge && nrStoSheets[lodge]);
                 },
                 openRateSheet(lodge) {
                     const url = this.rateSheetUrl(lodge);
