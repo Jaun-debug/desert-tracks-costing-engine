@@ -1211,6 +1211,10 @@
         // property). Keyed by the EXACT dropdown lodge name. Will repoint to namibiarates.com
         // once the rate app design is finalised.
         const nrStoSheetBase = "../dt_library/";
+        // Live-hosted copies of the rate sheets (flat folder on namibiarates.com). Used when the
+        // app is NOT running from a local file:// path. The hosted filename is the basename of the
+        // local path, e.g. "single lodges/Caprivi/camp_kwando_ratesheet_v3.html" -> "camp_kwando_ratesheet_v3.html".
+        const nrStoSheetHostBase = "https://namibiarates.com/ratesheets/";
                         const nrStoSheets = {
             "Camp Kwando": "single lodges/Caprivi/camp_kwando_ratesheet_v3.html",
             "White Sands Caprivi": "single lodges/Caprivi/white_sands_ratesheet_v3.html",
@@ -1738,7 +1742,13 @@
                         this.onLodgeSelect(day, index);
                         // Open this lodge's STO rate sheet in a new tab on selection
                         if (nrStoSheets[day.lodge]) {
-                            window.open(encodeURI(nrStoSheetBase + nrStoSheets[day.lodge]), '_blank');
+                            const sheetPath = nrStoSheets[day.lodge];
+                            // Local laptop (file://) opens the sheet from the sibling dt_library folder;
+                            // the deployed site opens the hosted copy on namibiarates.com (flat, by filename).
+                            const sheetUrl = (location.protocol === 'file:')
+                                ? encodeURI(nrStoSheetBase + sheetPath)
+                                : nrStoSheetHostBase + encodeURIComponent(sheetPath.split('/').pop());
+                            window.open(sheetUrl, '_blank');
                         }
                     }
                 },
